@@ -72,24 +72,35 @@
       name: "{{ item.name }}"
       device_type: "{{ item.device_type }}"
       device_role: "{{ item.device_role }}"
+      rack: "{{ item.rack }}"
+      position: "{{ item.position }}"
+      face: "front"
       site: "Americas HQ"
   loop:
     - name: "Edge Router"
       device_type: "ISR4451"
       device_role: "Network"
       serial: "111"
+      rack: "Row1RackA"
+      position: 1
     - name: "Access Switch"
       device_type: "N9K9372TX"
       device_role: "Network"
       serial: "222"
+      rack: "Row1RackA"
+      position: 9
     - name: "Server1"
       device_type: "R420XR"
       device_role: "Compute"
       serial: "333"
+      rack: "Row1RackB"
+      position: 1
     - name: "Server2"
       device_type: "R420XR"
       device_role: "Compute"
       serial: "444"
+      rack: "Row1RackB"
+      position: 2
   loop_control:
     label: "{{ item.name }} - {{ item.device_type }}"
 ...

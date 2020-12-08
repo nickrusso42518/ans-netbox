@@ -4,8 +4,8 @@
   tasks:
     - include_tasks: "tasks/{{ taskname }}.yml"
       loop:
-        # - "org"
-        # - "device"
+        - "org"
+        - "device"
         - "ipam"
         # - "circuit"
       loop_control:
