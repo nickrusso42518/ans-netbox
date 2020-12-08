@@ -1,0 +1,67 @@
+---
+- name: "Create router management interface"
+  netbox.netbox.netbox_device_interface:
+    netbox_url: "{{ netbox_url }}"
+    netbox_token: "{{ netbox_token }}"
+    data:
+      device: "Edge router"
+      name: "GigabitEthernet0"
+      type: "1000base-t"
+      mtu: 1500
+      enabled: true
+      mgmt_only: true
+
+- name: "Create DC management VLAN"
+  netbox.netbox.netbox_vlan:
+    netbox_url: "{{ netbox_url }}"
+    netbox_token: "{{ netbox_token }}"
+    data:
+      name: "Management"
+      vid: 4002
+      site: "Americas HQ"
+      status: "active"
+
+- name: "Create DC management VLAN"
+  netbox.netbox.netbox_vlan:
+    netbox_url: "{{ netbox_url }}"
+    netbox_token: "{{ netbox_token }}"
+    data:
+      name: "Management"
+      vid: 4002
+      site: "Americas HQ"
+      status: "active"
+
+- name: "Create DC management prefixes"
+  netbox.netbox.netbox_prefix:
+    netbox_url: "{{ netbox_url }}"
+    netbox_token: "{{ netbox_token }}"
+    data:
+      prefix: "{{ item }}"
+      site: "Americas HQ"
+      vlan: "Management"
+  loop:
+    - "203.0.113.0/24"
+    - "2001:db8:203:113::/64"
+
+- name: "Create router management addresses"
+  netbox.netbox.netbox_ip_address:
+    netbox_url: "{{ netbox_url }}"
+    netbox_token: "{{ netbox_token }}"
+    data:
+      address: "{{ item }}"
+      status: "active"
+      assigned_object:
+        device: "Edge Router"
+        name: "GigabitEthernet0"
+  loop:
+    - "203.0.113.254/24"
+    - "2001:db8:203:113::254/64"
+
+- name: "Update router primary IP address(es)"
+  netbox.netbox.netbox_device:
+    netbox_url: "{{ netbox_url }}"
+    netbox_token: "{{ netbox_token }}"
+    data:
+      primary_ip4: "203.0.113.254/24"
+      primary_ip6: "2001:db8:203:113::254/64"
+...

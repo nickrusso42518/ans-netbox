@@ -1,0 +1,95 @@
+---
+- name: "Create data center racks"
+  netbox.netbox.netbox_rack:
+    netbox_url: "{{ netbox_url }}"
+    netbox_token: "{{ netbox_token }}"
+    data:
+      name: "{{ item }}"
+      site: "Americas HQ"
+      status: "active"
+      type: "4-post cabinet"
+      width: 19
+      u_height: 42
+      desc_units: true
+  loop:
+    - "Row1RackA"
+    - "Row1RackB"
+
+- name: "Create manufacturers"
+  netbox.netbox.netbox_manufacturer:
+    netbox_url: "{{ netbox_url }}"
+    netbox_token: "{{ netbox_token }}"
+    data:
+      name: "{{ item }}"
+    state: present
+  loop:
+    - "Cisco"
+    - "Dell"
+
+- name: "Create device types"
+  netbox.netbox.netbox_device_type:
+    netbox_url: "{{ netbox_url }}"
+    netbox_token: "{{ netbox_token }}"
+    data:
+      slug: "{{ item.slug }}"
+      model: "{{ item.slug }}"
+      manufacturer: "{{ item.manufacturer }}"
+      u_height: "{{ item.u_height }}"
+      is_full_depth: true
+  loop:
+    - manufacturer: "Cisco"
+      slug: "ISR4451"
+      u_height: 2
+    - manufacturer: "Cisco"
+      slug: "N9K9372TX"
+      u_height: 1
+    - manufacturer: "Dell"
+      slug: "R420XR"
+      u_height: 1
+  loop_control:
+    label: "{{ item.manufacturer }} {{ item.slug }}"
+
+- name: "Create device roles"
+  netbox.netbox.netbox_device_role:
+    netbox_url: "{{ netbox_url }}"
+    netbox_token: "{{ netbox_token }}"
+    data:
+      name: "{{ item.name }}"
+      color: "{{ item.color }}"
+  loop:
+    - name: "Network"
+      color: "00FF00"  # green
+    - name: "Compute"
+      color: "FF0000"  # red
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: "Create devices"
+  netbox.netbox.netbox_device:
+    netbox_url: "{{ netbox_url }}"
+    netbox_token: "{{ netbox_token }}"
+    data:
+      name: "{{ item.name }}"
+      device_type: "{{ item.device_type }}"
+      device_role: "{{ item.device_role }}"
+      site: "Americas HQ"
+  loop:
+    - name: "Edge Router"
+      device_type: "ISR4451"
+      device_role: "Network"
+      serial: "111"
+    - name: "Access Switch"
+      device_type: "N9K9372TX"
+      device_role: "Network"
+      serial: "222"
+    - name: "Server1"
+      device_type: "R420XR"
+      device_role: "Compute"
+      serial: "333"
+    - name: "Server2"
+      device_type: "R420XR"
+      device_role: "Compute"
+      serial: "444"
+  loop_control:
+    label: "{{ item.name }} - {{ item.device_type }}"
+...
