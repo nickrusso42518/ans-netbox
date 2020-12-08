@@ -21,7 +21,6 @@
     netbox_token: "{{ netbox_token }}"
     data:
       name: "{{ item }}"
-    state: present
   loop:
     - "Cisco"
     - "Dell"
