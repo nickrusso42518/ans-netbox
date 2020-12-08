@@ -1,0 +1,9 @@
+---
+plugin: "netbox.netbox.nb_inventory"
+api_endpoint: "http://netbox.njrusmc.net:8000"
+token: "0123456789abcdef0123456789abcdef01234567"
+# config_context: false
+group_by:
+  - "device_roles"
+device_query_filters:
+  - has_primary_ip: "true"

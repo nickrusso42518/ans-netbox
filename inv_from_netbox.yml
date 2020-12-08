@@ -1,2 +1,15 @@
 ---
-# TODO
+- name: "Test dynamic inventory"
+  hosts: "device_roles_network"
+  connection: "network_cli"
+  tasks:
+    # https://blog.networktocode.com/post/Ansible-Dynamic-Inventory-using-Plugins/
+    - name: "Perform local verification/troubleshooting"
+      block:
+        - name: "Reveal discovered ansible_host values"
+          debug:
+            var: "ansible_host"
+
+        - name: "Attempt to ping ansible_host"
+          command: "ping -c 1 -w 1 {{ ansible_host }}"
+      delegate_to: "localhost"

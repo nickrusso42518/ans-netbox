@@ -64,5 +64,5 @@
     data:
       name: "Edge Router"
       primary_ip4: "203.0.113.254/24"
-      primary_ip6: "2001:db8:203:113::254/64"
+      # primary_ip6: "2001:db8:203:113::254/64"
 ...
