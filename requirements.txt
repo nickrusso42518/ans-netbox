@@ -2,3 +2,8 @@ ansible-base==2.10.3
 yamllint
 requests
 pynetbox
+boto
+boto3
+pan-python
+pan-os-python
+paramiko

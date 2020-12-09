@@ -1,0 +1,107 @@
+---
+- hosts: localhost
+  connection: local
+  vars_files:
+    - "vault.yml"
+  tasks:
+    - name: "Search for Palo Alto NGFW images"
+      amazon.aws.ec2_ami_info:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        image_id: "ami-04d797af2d3326de3"  # PA-VM 9.1.6
+        # filters:
+          # name: "PA-VM-AWS*"
+      register: pan
+    - debug: var=pan
+
+    - name: "Create securityPAN group"
+      amazon.aws.ec2_group:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        name: "securityPAN"
+        description: "Allow SSH and HTTPS for PAN NGFWs"  # required!
+        vpc_id: "vpc-7d5a7b1b"  # Ansible
+        region: "us-east-1"
+        rules:
+          - rule_desc: "SSH"
+            proto: "tcp"
+            from_port: 22
+            to_port: 22
+            cidr_ip: "0.0.0.0/0"
+          - rule_desc: "HTTPS"
+            proto: "tcp"
+            from_port: 443
+            to_port: 443
+            cidr_ip: "0.0.0.0/0"
+      register: pan
+    - debug: var=pan
+
+    - name: "Deploy PAN NGFW EC2 instance"
+      amazon.aws.ec2:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        image: "ami-04d797af2d3326de3"
+        region: "us-east-1"
+        instance_type: "m4.large"
+        instance_tags:
+          Name: "globoPAN"
+        group: "securityPAN"
+        exact_count: 1  # needed for idempotence
+        count_tag:
+          Name: "globoPAN"
+        vpc_subnet_id: "subnet-3045491d"  # Ansible VPC/public
+        source_dest_check: false
+        assign_public_ip: true
+        volumes:
+          - device_name: "/dev/xvda"
+            volume_type: "gp2"
+            volume_size: 60
+            delete_on_termination: true
+        wait: true
+        wait_timeout: 60
+        key_name: "EC2-key-pair"
+      register: ec2
+    - debug: var=ec2
+
+    - name: "Add new EC2 instance to Ansible inventory"
+      add_host:
+        name: "PA-VM1"
+        groups: "pa_aws"
+        ansible_host: "{{ instances[0].public_ip }}"
+      vars:
+        instances: >-
+          {{ ec2.instances if ec2.instances | length > 0
+          else ec2.tagged_instances }}
+
+- hosts: pa_aws
+  connection: local
+  vars_files:
+    - "vault.yml"
+  tasks:
+    - name: "Define PAN NGFW credentials"
+      set_fact:
+        pan_creds:
+          username: "{{ pan_username }}"
+          password: "{{ pan_password }}"
+          ip_address: "{{ ansible_host }}"
+    - debug: var=pan_creds
+
+    - name: "Update PAN NGFW admin password"
+      paloaltonetworks.panos.panos_admpwd:
+        ip_address: "{{ ansible_host }}"
+        key_filename: "/home/centos/personalprivkey.pem"  # FQFN needed
+        username: "{{ pan_creds.username }}"
+        newpassword: "{{ pan_creds.password }}"
+      register: "admin_pass"
+      until: "admin_pass is not failed"
+      retries: 90
+      delay: 10  # 15 minutes total
+    - debug: var=admin_pass
+
+    - name: "Wait for PA NGFW REST API to respond"
+      paloaltonetworks.panos.panos_check:
+        provider: "{{ pan_creds }}"
+        interval: 5
+        timeout: 60
+      register: pan_check
+    - debug: var=pan_check

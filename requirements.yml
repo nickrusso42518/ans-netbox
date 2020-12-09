@@ -2,6 +2,8 @@
 collections:
   - "ansible.netcommon"
   - "netbox.netbox"
+  - "amazon.aws"
+  - "paloaltonetworks.panos"
   # - "cisco.ios"
   # - "cisco.nxos"
 ...
