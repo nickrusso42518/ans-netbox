@@ -9,8 +9,7 @@
         aws_access_key: "{{ aws_access_key }}"
         aws_secret_key: "{{ aws_secret_key }}"
         image_id: "ami-04d797af2d3326de3"  # PA-VM 9.1.6
-        # filters:
-          # name: "PA-VM-AWS*"
+        # filters: name=PA-VM-AWS*
       register: pan
     - debug: var=pan
 
@@ -67,11 +66,7 @@
       add_host:
         name: "PA-VM1"
         groups: "pa_aws"
-        ansible_host: "{{ instances[0].public_ip }}"
-      vars:
-        instances: >-
-          {{ ec2.instances if ec2.instances | length > 0
-          else ec2.tagged_instances }}
+        ansible_host: "{{ ec2.tagged_instances[0].public_ip }}"
 
 - hosts: pa_aws
   connection: local
@@ -93,9 +88,9 @@
         username: "{{ pan_creds.username }}"
         newpassword: "{{ pan_creds.password }}"
       register: "admin_pass"
-      until: "admin_pass is not failed"
-      retries: 90
-      delay: 10  # 15 minutes total
+      until: "'Configuration committed successfully' in admin_pass.stdout"
+      retries: 30
+      delay: 30  # 30 * 30 = 900 seconds = 15 minutes total
     - debug: var=admin_pass
 
     - name: "Wait for PA NGFW REST API to respond"
