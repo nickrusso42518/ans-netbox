@@ -13,11 +13,11 @@
       register: pan
     - debug: var=pan
 
-    - name: "Create securityPAN group"
+    - name: "Create security groups"
       amazon.aws.ec2_group:
         aws_access_key: "{{ aws_access_key }}"
         aws_secret_key: "{{ aws_secret_key }}"
-        name: "securityPAN"
+        name: "PAN_management"
         description: "Allow SSH and HTTPS for PAN NGFWs"  # required!
         vpc_id: "vpc-7d5a7b1b"  # Ansible
         region: "us-east-1"
@@ -35,6 +35,33 @@
       register: pan
     - debug: var=pan
 
+    - name: "Create new ENIs"
+      amazon.aws.ec2_eni:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        name: "{{ item.name }}"
+        subnet_id: "{{ item.subnet_id }}"
+        private_ip_address: "{{ item.private_ip_address }}"
+        security_groups: "{{ item.security_groups }}"
+      loop:
+        - name: "Management"
+          subnet_id: "subnet-3045491d"  # existing VPC public subnet
+          private_ip_address: "10.125.0.77"
+          security_groups: ["PAN_management"]
+        - name: "Servers"
+          subnet_id: "subnet-a645498b"  # existing VPC private subnet
+          private_ip_address: "10.125.1.77"
+          security_groups: ["PAN_management"]  # TODO
+      loop_control:
+        label: "{{ item.name }}: {{ item.private_ip_address }}"
+      register: pan
+    - debug: var=pan
+
+    - name: "Extract ENI IDs from results"
+      set_fact:
+        enis: "{{ pan.results | map(attribute='interface.id') | list }}"
+    - debug: var=enis
+
     - name: "Deploy PAN NGFW EC2 instance"
       amazon.aws.ec2:
         aws_access_key: "{{ aws_access_key }}"
@@ -44,13 +71,10 @@
         instance_type: "m4.large"
         instance_tags:
           Name: "globoPAN"
-        group: "securityPAN"
         exact_count: 1  # needed for idempotence
         count_tag:
           Name: "globoPAN"
-        vpc_subnet_id: "subnet-3045491d"  # Ansible VPC/public
-        source_dest_check: false
-        assign_public_ip: true
+        network_interfaces: "{{ enis }}"
         volumes:
           - device_name: "/dev/xvda"
             volume_type: "gp2"
@@ -61,6 +85,8 @@
         key_name: "EC2-key-pair"
       register: ec2
     - debug: var=ec2
+
+    - fail:
 
     - name: "Add new EC2 instance to Ansible inventory"
       add_host:
