@@ -62,6 +62,17 @@
         enis: "{{ pan.results | map(attribute='interface.id') | list }}"
     - debug: var=enis
 
+    - name: "Associate new EIP to PAN management ENI"
+      community.aws.ec2_eip:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        device_id: "{{ enis[0] }}"
+        region: "us-east-1"
+        in_vpc: true
+        release_on_disassociation: true
+      register: eip
+    - debug: var=eip
+
     - name: "Deploy PAN NGFW EC2 instance"
       amazon.aws.ec2:
         aws_access_key: "{{ aws_access_key }}"
@@ -85,8 +96,6 @@
         key_name: "EC2-key-pair"
       register: ec2
     - debug: var=ec2
-
-    - fail:
 
     - name: "Add new EC2 instance to Ansible inventory"
       add_host:
@@ -114,9 +123,11 @@
         username: "{{ pan_creds.username }}"
         newpassword: "{{ pan_creds.password }}"
       register: "admin_pass"
-      until: "'Configuration committed successfully' in admin_pass.stdout"
-      retries: 30
-      delay: 30  # 30 * 30 = 900 seconds = 15 minutes total
+      until:
+        - "admin_pass.stdout is defined"
+        - "'Configuration committed successfully' in admin_pass.stdout"
+      retries: 40
+      delay: 30  # 30 * 40 = 1200 seconds = 20 minutes total
     - debug: var=admin_pass
 
     - name: "Wait for PA NGFW REST API to respond"
