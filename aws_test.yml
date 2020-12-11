@@ -200,9 +200,11 @@
         name: "IKE_GW_GloboHQ"
         version: "ikev2"
         interface: "ethernet1/1"
-        peer_ip_value: "203.0.113.1"
-        pre_shared_key: "globoPass1123!"
-        ikev2_crypto_profile: "Suite-B-GCM-256" # built-in
+        peer_ip_type: "dynamic"
+        peer_id_type: "fqdn"
+        peer_id_value: "r1.globomantics.com"
+        pre_shared_key: "globoPass123!"
+        ikev2_crypto_profile: "Suite-B-GCM-256"  # built-in
         liveness_check_interval: 5
         enable_passive_mode: true
         enable_liveness_check: true
@@ -216,7 +218,7 @@
         if_name: "tunnel.100"
         zone_name: "globo"
         vr_name: "default"
-        ip: ["10.1.1.1/24"]
+        ip: ["192.0.2.1/24"]
         comment: "IPsec tunnel to Globomantics HQ"
       register: pan_check
     - debug: var=pan_check
@@ -227,7 +229,17 @@
         name: "IPsec_Tunnel_GloboHQ"
         tunnel_interface: "tunnel.100"
         ak_ike_gateway: "IKE_GW_GloboHQ"
-        ak_ipsec_crypto_profile: "Suite-B-GCM-256" # built-in
+        ak_ipsec_crypto_profile: "Suite-B-GCM-256"  # built-in
+      register: pan_check
+    - debug: var=pan_check
+
+    - name: "Configure static route to GloboHQ"
+      paloaltonetworks.panos.panos_static_route:
+        provider: "{{ pan_creds }}"
+        name: "To_GloboHQ"
+        destination: "192.168.0.0/16"
+        nexthop_type: "none"
+        interface: "tunnel.100"
       register: pan_check
     - debug: var=pan_check
 
