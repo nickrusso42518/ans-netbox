@@ -1,7 +1,6 @@
 ---
 collections:
   - "ansible.netcommon"
-  - "netbox.netbox"
   - "amazon.aws"
   - "community.aws"
   - "paloaltonetworks.panos"
