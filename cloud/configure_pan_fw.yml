@@ -1,19 +1,19 @@
 ---
 - name: "Configure PAN NGFW running in AWS"
   hosts: "pan_aws"
-  connection: "local"
+  connection: "ansible.builtin.local"
   vars_files:
     - "vault.yml"
   tasks:
     # PAN Collection documentation
     # https://paloaltonetworks.github.io/pan-os-ansible/
     - name: "Define PAN NGFW credentials"
-      set_fact:
+      ansible.builtin.set_fact:
         pan_creds:
           username: "{{ pan_username }}"
           password: "{{ pan_password }}"
           ip_address: "{{ ansible_host }}"
-    - debug: var=pan_creds
+      no_log: true
 
     - name: "Update PAN NGFW admin password"
       paloaltonetworks.panos.panos_admpwd:
@@ -27,15 +27,12 @@
         - "'Configuration committed successfully' in admin_pass.stdout"
       retries: 40
       delay: 30  # 30 * 40 = 1200 seconds = 20 minutes total
-    - debug: var=admin_pass
 
     - name: "Wait for PA NGFW REST API to respond"
       paloaltonetworks.panos.panos_check:
         provider: "{{ pan_creds }}"
         interval: 5
         timeout: 60
-      register: pan_check
-    - debug: var=pan_check
 
     - name: "Configure VPN underlay interface and zone"
       paloaltonetworks.panos.panos_interface:
@@ -45,8 +42,6 @@
         zone_name: "vpn"
         create_default_route: true
         enable_dhcp: true
-      register: pan_check
-    - debug: var=pan_check
 
     - name: "Configure server interface and zone"
       paloaltonetworks.panos.panos_interface:
@@ -56,8 +51,6 @@
         zone_name: "servers"
         create_default_route: false
         enable_dhcp: true
-      register: pan_check
-    - debug: var=pan_check
 
     - name: "Configure IKE gateway"
       paloaltonetworks.panos.panos_ike_gateway:
@@ -74,8 +67,6 @@
         enable_passive_mode: true
         enable_liveness_check: true
         enable_nat_traversal: true
-      register: pan_check
-    - debug: var=pan_check
 
     - name: "Configure IPsec tunnel interface"
       paloaltonetworks.panos.panos_tunnel:
@@ -88,8 +79,6 @@
       vars:
         tunnel_ipv4: "{{ ipsec.ipv4_net | ipaddr('77') | ipaddr('address') }}"
         tunnel_prefix: "{{ ipsec.ipv4_net | ipaddr('prefix') }}"
-      register: pan_check
-    - debug: var=pan_check
 
     - name: "Configure IPsec tunnel parameters"
       paloaltonetworks.panos.panos_ipsec_tunnel:
@@ -98,8 +87,6 @@
         tunnel_interface: "tunnel.{{ ipsec.tunnel_id }}"
         ak_ike_gateway: "IKE_GW_GloboHQ"
         ak_ipsec_crypto_profile: "Suite-B-GCM-256"  # built-in
-      register: pan_check
-    - debug: var=pan_check
 
     - name: "Configure static route to GloboHQ"
       paloaltonetworks.panos.panos_static_route:
@@ -108,27 +95,32 @@
         destination: "192.168.0.0/16"  # Globomantics aggregate
         nexthop_type: "none"
         interface: "tunnel.{{ ipsec.tunnel_id }}"
-      register: pan_check
-    - debug: var=pan_check
 
     - name: "Permit HTTP from GloboHQ to cloud servers"
       paloaltonetworks.panos.panos_security_rule:
         provider: "{{ pan_creds }}"
         rule_name: "Eng_HTTP"
-        description: "Globo engineering to web server"
         source_zone: ["globo"]
-        source_ip: ["198.51.100.0/24"]  # Globomantics Engineering
+        source_ip: ["192.168.55.0/24"]  # Globomantics Engineering
         destination_zone: ["servers"]
         service: ["service-http"]  # built-in service for TCP 80 and 8080
         location: "top"
         action: "allow"
-      register: pan_check
-    - debug: var=pan_check
+
+    - name: "Permit SSH from GloboHQ to cloud servers"
+      paloaltonetworks.panos.panos_security_rule:
+        provider: "{{ pan_creds }}"
+        rule_name: "Eng_SSH"
+        source_zone: ["globo"]
+        source_ip: ["192.168.55.0/24"]  # Globomantics Engineering
+        destination_zone: ["servers"]
+        application: ["ssh"]  # built-in application for TCP 22
+        location: "after"
+        existing_rule: "Eng_HTTP"
+        action: "allow"
 
     - name: "Commit changes"
       paloaltonetworks.panos.panos_commit_firewall:
         provider: "{{ pan_creds }}"
         description: "Ansible initial provisioning complete"
-      register: pan_check
-    - debug: var=pan_check
 ...

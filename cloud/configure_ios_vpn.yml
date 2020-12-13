@@ -8,7 +8,7 @@
     # Ansible netcommon collection documentation
     # https://github.com/ansible-collections/ansible.netcommon
     - name: "Compute IPsec tunnel destination IP"
-      set_fact:
+      ansible.builtin.set_fact:
         tunnel_dest: "{{ hostvars.PAN_VM1.ipsec_endpoint }}"
       when:
         - "hostvars.PAN_VM1 is defined"
@@ -16,7 +16,7 @@
       delegate_to: "localhost"
 
     - name: "Assign default tunnel_dest value if PAN_VM1 doesn't exist"
-      set_fact:
+      ansible.builtin.set_fact:
         tunnel_dest: "203.0.113.99"
       when: "tunnel_dest is not defined"
       delegate_to: "localhost"

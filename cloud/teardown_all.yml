@@ -1,0 +1,25 @@
+---
+- name: "Teardown AWS network infrastructure and EC2 instances"
+  hosts: "localhost"
+  connection: "ansible.builtin.local"
+  vars_files:
+    - "vault.yml"
+  tasks:
+    - name: "Terminate EC2_Globo_* instances"
+      community.aws.ec2_instance:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        filters:
+          "tag:Name": "EC2_Globo_*"
+        state: "absent"  # TODO does not delete EIPs
+
+    - name: "Terminate VPC_Globo and all subcomponents"
+      amazon.aws.ec2_vpc_net:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        name: "VPC_Globo"
+        region: "us-east-1"
+        cidr_block: "10.0.0.0/16"
+        purge_cidrs: true
+        state: "absent"
+      when: false  # TODO does not handle dependencies like GUI does
