@@ -171,7 +171,9 @@
         device_id: "{{ item }}"
         region: "us-east-1"
         in_vpc: true
-        release_on_disassociation: true
+        reuse_existing_ip_allowed: true
+        tag_name: "Name"
+        tag_value: "{{ item }}"  # needed for idempotence
       register: "eips"
       loop: "{{ enis[:-1] }}"  # Slice captures all interfaces except the last
 
@@ -199,20 +201,12 @@
         key_name: "EC2-key-pair"  # already exists
       register: "ec2"
 
-    - name: "Update mgmt ENI to delete on termination"
-      amazon.aws.ec2_eni:
-        aws_access_key: "{{ aws_access_key }}"
-        aws_secret_key: "{{ aws_secret_key }}"
-        eni_id: "{{ enis[0] }}"
-        delete_on_termination: true
-
-    - name: "Update non-mgmt ENIs to delete on term and disable src/dst check"
+    - name: "Disable source/dest check on non-mgmt ENIs (enables routing)"
       amazon.aws.ec2_eni:
         aws_access_key: "{{ aws_access_key }}"
         aws_secret_key: "{{ aws_secret_key }}"
         eni_id: "{{ item }}"
         source_dest_check: false
-        delete_on_termination: true
       loop: "{{ enis[1:] }}"  # Slice captures all interfaces except the first
 
     - name: "Add NGFW to 'pan_aws' group (Mgmt:{{ mgmt_ip }} VPN:{{ vpn_ip }})"
