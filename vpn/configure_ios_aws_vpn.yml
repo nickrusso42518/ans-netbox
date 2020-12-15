@@ -1,0 +1,138 @@
+---
+- name: "Collect public IP of on-premises router"
+  hosts: "R1"
+  vars_files:
+    - "vault.yml"
+  tasks:
+
+    - name: "Get the edge router public IP address"
+      ansible.netcommon.cli_command:
+        command: "more http://ifconfig.me/ip"
+      register: "public_ip_raw"
+
+    - name: "Extract and validate the edge router public IP address"
+      ansible.builtin.set_fact:
+        router_public_ip: "{{ public_ip_raw.stdout.split(' ')[-1] | ipaddr }}"
+      delegate_to: "localhost"
+      delegate_facts: true
+
+    - name: "Display edge router public IP address as seen by localhost"
+      ansible.builtin.debug:
+        var: "hostvars.localhost.router_public_ip"
+      delegate_to: "localhost"
+
+
+- name: "Built AWS IPsec VPN to Globomantics"
+  hosts: "localhost"
+  vars_files:
+    - "vault.yml"
+  tasks:
+    - name: "Create Virtual Private Cloud (VPC)"
+      amazon.aws.ec2_vpc_net:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        name: "VPC_Globo"
+        region: "us-east-1"
+        cidr_block: "10.0.0.0/16"
+      register: "vpc"
+
+    - name: "Create server subnet within VPC"
+      amazon.aws.ec2_vpc_subnet:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        vpc_id: "{{ vpc.vpc.id }}"
+        region: "us-east-1"
+        az: "us-east-1b"
+        cidr: "10.0.2.0/24"
+        tags:
+          Name: "NET_Globo_Servers"
+      register: "subnet"
+
+    - name: "Create IPsec customer gateway (CGW)"
+      community.aws.ec2_customer_gateway:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        name: "CGW_Globo_R1"
+        region: "us-east-1"
+        ip_address: "{{ router_public_ip }}"  # delegated from router!
+        bgp_asn: "{{ ipsec.bgp.globo_asn }}"
+      register: "cgw"
+
+    - name: "Create IPsec VPN gateway (VGW) and attach to VPC"
+      community.aws.ec2_vpc_vgw:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        name: "VGW_Globo_R1"
+        region: "us-east-1"
+        vpc_id: "{{ vpc.vpc.id }}"
+      register: "vgw"
+
+    - name: "Create IPsec VPN connection from CGW to VGW (FAILS ON CREATE)"
+      community.aws.ec2_vpc_vpn:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        customer_gateway_id: >-
+          {{ cgw.gateway.customer_gateway.customer_gateway_id }}
+        vpn_gateway_id: "{{ vgw.vgw.id }}"
+        tunnel_options:
+          - PreSharedKey: "{{ ipsec.psk }}"
+            TunnelInsideCidr: "169.254.{{ ipsec.tunnel_ids[0] }}.1/30"
+          - PreSharedKey: "{{ ipsec.psk }}"
+            TunnelInsideCidr: "169.254.{{ ipsec.tunnel_ids[1] }}.1/30"
+        delay: 1
+        wait_timeout: 1  # fail fast since we can't specify state "pending"
+        tags:
+          Name: "VPN_Globo_R1"
+      ignore_errors: true
+
+    - name: "Get information from VPN connection just created"
+      community.aws.ec2_vpc_vpn_info:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        filters:
+          "tag:Name": "VPN_Globo_R1"
+      register: "vpn"
+
+    - name: "Extract the public IP addresses hosted by the VGW"
+      ansible.builtin.set_fact:
+        aws_public_ips: >-
+          {{ vpn.vpn_connections[0].vgw_telemetry |
+          map(attribute='outside_ip_address') | list }}
+
+    - name: "Display AWS VGW public IP addresses"
+      ansible.builtin.debug:
+        msg: "Tu1: {{ aws_public_ips[0] }} / Tu2: {{ aws_public_ips[1] }}"
+      delegate_to: "localhost"
+
+
+- name: "Built Globomantics IPsec VPN to AWS"
+  hosts: "R1"
+  vars_files:
+    - "vault.yml"
+  tasks:
+    - name: "Configure IPsec VPNs from edge router to AWS VGW"
+      ansible.netcommon.cli_config:
+        config: "{{ lookup('template', 'templates/ios_aws_ipsec.j2') }}"
+      register: "config_updates"
+
+    - name: "Save configuration when changes occur"
+      ansible.netcommon.cli_command:
+        command: "write memory"
+      when: "config_updates.changed"
+
+    - name: "Ensure both BGP session with AWS come online"
+      ansible.netcommon.cli_command:
+        command: "show bgp ipv4 unicast neighbors | count state = Established"
+      register: "bgp_status"
+      until: "'regexp = 2' in bgp_status.stdout"
+      retries: 10
+      delay: 3
+
+    - name: "Ensure edge router has route to VPC CIDR"
+      ansible.netcommon.cli_command:
+        command: "show ip route 10.0.0.0 255.255.0.0"
+      register: "route_status"
+      until: "'not in table' not in route_status.stdout"
+      retries: 30
+      delay: 3
+...

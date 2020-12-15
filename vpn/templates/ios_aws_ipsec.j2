@@ -1,0 +1,32 @@
+crypto logging session
+crypto logging ikev2
+crypto ikev2 proposal IKEV2_PROPOSAL
+ encryption aes-cbc-256
+ integrity sha384
+ group 20
+crypto ikev2 policy IKEV2_POLICY
+ proposal IKEV2_PROPOSAL
+crypto ikev2 profile IKEV2_PROFILE
+ match identity remote address 0.0.0.0
+ authentication remote pre-share key {{ ipsec.psk }}
+ authentication local pre-share key {{ ipsec.psk }}
+ dpd 30 10 periodic
+crypto ipsec transform-set IPSEC_XFORM esp-gcm 256
+ mode tunnel
+crypto ipsec profile IPSEC_PROFILE
+ set transform-set IPSEC_XFORM
+ set ikev2-profile IKEV2_PROFILE
+{% set aws_public_ips = hostvars.localhost.aws_public_ips %}
+{% for tunnel_id, aws_public_ip in ipsec.tunnel_ids | zip(aws_public_ips) %}
+{% set awsvpn_ipv4 = '169.254.' ~ tunnel_id ~ '.1' %}
+{% set tunnel_ipv4 = '169.254.' ~ tunnel_id ~ '.2' %}
+interface Tunnel{{ tunnel_id }}
+ ip address {{ tunnel_ipv4 }} 255.255.255.252
+ tunnel mode ipsec ipv4
+ tunnel source {{ ipsec_src_intf }}
+ tunnel destination {{ aws_public_ip }}
+ tunnel protection ipsec profile IPSEC_PROFILE
+router bgp {{ ipsec.bgp.globo_asn }}
+ neighbor {{ awsvpn_ipv4 }} remote {{ ipsec.bgp.aws_asn }}
+ neighbor {{ awsvpn_ipv4 }} description Tunnel{{ tunnel_id }}
+{% endfor %}

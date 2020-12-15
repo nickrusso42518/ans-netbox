@@ -1,0 +1,54 @@
+{
+  "changed":false,
+  "failed":false,
+  "vpn_connections":[
+    {
+      "category":"VPN",
+      "customer_gateway_configuration":"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<vpn_connection id=\"vpn-072ff07fbe8c70728\">\n  <customer_gateway_id>cgw-0bcc498f1d08ffdb6</customer_gateway_id>\n  <vpn_gateway_id>vgw-0deed7cb3efc260f5</vpn_gateway_id>\n  <vpn_connection_type>ipsec.1</vpn_connection_type>\n  <ipsec_tunnel>\n    <customer_gateway>\n      <tunnel_outside_address>\n        <ip_address>54.162.84.190</ip_address>\n      </tunnel_outside_address>\n      <tunnel_inside_address>\n        <ip_address>169.254.101.2</ip_address>\n        <network_mask>255.255.255.252</network_mask>\n        <network_cidr>30</network_cidr>\n      </tunnel_inside_address>\n      <bgp>\n        <asn>65000</asn>\n        <hold_time>30</hold_time>\n      </bgp>\n    </customer_gateway>\n    <vpn_gateway>\n      <tunnel_outside_address>\n        <ip_address>52.207.125.151</ip_address>\n      </tunnel_outside_address>\n      <tunnel_inside_address>\n        <ip_address>169.254.101.1</ip_address>\n        <network_mask>255.255.255.252</network_mask>\n        <network_cidr>30</network_cidr>\n      </tunnel_inside_address>\n      <bgp>\n        <asn>64512</asn>\n        <hold_time>30</hold_time>\n      </bgp>\n    </vpn_gateway>\n    <ike>\n      <authentication_protocol>sha1</authentication_protocol>\n      <encryption_protocol>aes-128-cbc</encryption_protocol>\n      <lifetime>28800</lifetime>\n      <perfect_forward_secrecy>group2</perfect_forward_secrecy>\n      <mode>main</mode>\n      <pre_shared_key>globoIPsec123</pre_shared_key>\n    </ike>\n    <ipsec>\n      <protocol>esp</protocol>\n      <authentication_protocol>hmac-sha1-96</authentication_protocol>\n      <encryption_protocol>aes-128-cbc</encryption_protocol>\n      <lifetime>3600</lifetime>\n      <perfect_forward_secrecy>group2</perfect_forward_secrecy>\n      <mode>tunnel</mode>\n      <clear_df_bit>true</clear_df_bit>\n      <fragmentation_before_encryption>true</fragmentation_before_encryption>\n      <tcp_mss_adjustment>1379</tcp_mss_adjustment>\n      <dead_peer_detection>\n        <interval>10</interval>\n        <retries>3</retries>\n      </dead_peer_detection>\n    </ipsec>\n  </ipsec_tunnel>\n  <ipsec_tunnel>\n    <customer_gateway>\n      <tunnel_outside_address>\n        <ip_address>54.162.84.190</ip_address>\n      </tunnel_outside_address>\n      <tunnel_inside_address>\n        <ip_address>169.254.102.2</ip_address>\n        <network_mask>255.255.255.252</network_mask>\n        <network_cidr>30</network_cidr>\n      </tunnel_inside_address>\n      <bgp>\n        <asn>65000</asn>\n        <hold_time>30</hold_time>\n      </bgp>\n    </customer_gateway>\n    <vpn_gateway>\n      <tunnel_outside_address>\n        <ip_address>54.157.97.173</ip_address>\n      </tunnel_outside_address>\n      <tunnel_inside_address>\n        <ip_address>169.254.102.1</ip_address>\n        <network_mask>255.255.255.252</network_mask>\n        <network_cidr>30</network_cidr>\n      </tunnel_inside_address>\n      <bgp>\n        <asn>64512</asn>\n        <hold_time>30</hold_time>\n      </bgp>\n    </vpn_gateway>\n    <ike>\n      <authentication_protocol>sha1</authentication_protocol>\n      <encryption_protocol>aes-128-cbc</encryption_protocol>\n      <lifetime>28800</lifetime>\n      <perfect_forward_secrecy>group2</perfect_forward_secrecy>\n      <mode>main</mode>\n      <pre_shared_key>globoIPsec123</pre_shared_key>\n    </ike>\n    <ipsec>\n      <protocol>esp</protocol>\n      <authentication_protocol>hmac-sha1-96</authentication_protocol>\n      <encryption_protocol>aes-128-cbc</encryption_protocol>\n      <lifetime>3600</lifetime>\n      <perfect_forward_secrecy>group2</perfect_forward_secrecy>\n      <mode>tunnel</mode>\n      <clear_df_bit>true</clear_df_bit>\n      <fragmentation_before_encryption>true</fragmentation_before_encryption>\n      <tcp_mss_adjustment>1379</tcp_mss_adjustment>\n      <dead_peer_detection>\n        <interval>10</interval>\n        <retries>3</retries>\n      </dead_peer_detection>\n    </ipsec>\n  </ipsec_tunnel>\n</vpn_connection>",
+      "customer_gateway_id":"cgw-0bcc498f1d08ffdb6",
+      "options":{
+        "enable_acceleration":false,
+        "local_ipv4_network_cidr":"0.0.0.0/0",
+        "remote_ipv4_network_cidr":"0.0.0.0/0",
+        "static_routes_only":false,
+        "tunnel_inside_ip_version":"ipv4",
+        "tunnel_options":[
+          {
+            "outside_ip_address":"52.207.125.151",
+            "pre_shared_key":"globoIPsec123",
+            "tunnel_inside_cidr":"169.254.101.0/30"
+          },
+          {
+            "outside_ip_address":"54.157.97.173",
+            "pre_shared_key":"globoIPsec123",
+            "tunnel_inside_cidr":"169.254.102.0/30"
+          }
+        ]
+      },
+      "routes":[],
+      "state":"pending",
+      "tags":{
+        "Name":"VPN_Globo_R1"
+      },
+      "type":"ipsec.1",
+      "vgw_telemetry":[
+        {
+          "accepted_route_count":0,
+          "last_status_change":"2020-12-15T14:19:17+00:00",
+          "outside_ip_address":"52.207.125.151",
+          "status":"DOWN",
+          "status_message":"IPSEC IS DOWN"
+        },
+        {
+          "accepted_route_count":0,
+          "last_status_change":"2020-12-15T14:19:17+00:00",
+          "outside_ip_address":"54.157.97.173",
+          "status":"DOWN",
+          "status_message":"IPSEC IS DOWN"
+        }
+      ],
+      "vpn_connection_id":"vpn-072ff07fbe8c70728",
+      "vpn_gateway_id":"vgw-0deed7cb3efc260f5"
+    }
+  ]
+}
