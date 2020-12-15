@@ -23,7 +23,7 @@
 
     - name: "Apply updates from jinja2 template to {{ tunnel_dest }}"
       ansible.netcommon.cli_config:
-        config: "{{ lookup('template', 'templates/ios_ipsec.j2') }}"
+        config: "{{ lookup('template', 'templates/ios_pan_ipsec.j2') }}"
       register: "config_updates"
 
     - name: "Save configuration when changes occur"
