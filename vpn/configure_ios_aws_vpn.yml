@@ -159,7 +159,7 @@
         command: "write memory"
       when: "config_updates.changed"
 
-    - name: "Ensure both BGP session with AWS come online"
+    - name: "Ensure both BGP sessions with AWS come online"
       ansible.netcommon.cli_command:
         command: "show bgp ipv4 unicast neighbors | count state = Established"
       register: "bgp_status"
