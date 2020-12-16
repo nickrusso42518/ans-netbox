@@ -1,9 +1,11 @@
 ---
 - name: "Collect public IP of on-premises router"
   hosts: "R1"
-  vars_files:
-    - "vault.yml"
   tasks:
+    - name: "Manually include vault file with secrets"
+      ansible.builtin.include_vars:
+        file: "vault.yml"
+      delegate_to: "localhost"
 
     - name: "Get the edge router public IP address"
       ansible.netcommon.cli_command:
@@ -22,7 +24,7 @@
       delegate_to: "localhost"
 
 
-- name: "Built AWS IPsec VPN to Globomantics"
+- name: "Connect AWS IPsec VPN (VGW) to Globomantics (CGW)"
   hosts: "localhost"
   vars_files:
     - "vault.yml"
@@ -36,7 +38,7 @@
         cidr_block: "10.0.0.0/16"
       register: "vpc"
 
-    - name: "Create server subnet within VPC"
+    - name: "Create server subnet within VPC (inside main route table)"
       amazon.aws.ec2_vpc_subnet:
         aws_access_key: "{{ aws_access_key }}"
         aws_secret_key: "{{ aws_secret_key }}"
@@ -47,6 +49,31 @@
         tags:
           Name: "NET_Globo_Servers"
       register: "subnet"
+
+    - name: "Create Server security group"
+      amazon.aws.ec2_group:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        name: "SG_Globo_Mgmt"
+        description: "Allow HTTP and ICMP ping only from GloboHQ"  # required!
+        vpc_id: "{{ vpc.vpc.id }}"
+        region: "us-east-1"
+        rules:
+          - rule_desc: "HTTP"
+            proto: "tcp"
+            from_port: 80
+            to_port: 80
+            cidr_ip: "192.168.0.0/16"
+          - rule_desc: "ICMP echo-request"
+            proto: "icmp"
+            from_port: 8  # ICMP type, 8 means Echo
+            to_port: 0  # ICMP code, 0 means No Code
+            cidr_ip: "192.168.0.0/16"
+          - rule_desc: "ICMP echo-reply"
+            proto: "icmp"
+            from_port: 0  # ICMP type, 0 means Echo Reply
+            to_port: 0  # ICMP code, 0 means No Code
+            cidr_ip: "192.168.0.0/16"
 
     - name: "Create IPsec customer gateway (CGW)"
       community.aws.ec2_customer_gateway:
@@ -67,7 +94,29 @@
         vpc_id: "{{ vpc.vpc.id }}"
       register: "vgw"
 
-    - name: "Create IPsec VPN connection from CGW to VGW (FAILS ON CREATE)"
+    - name: "Find main route table within VPC"
+      community.aws.ec2_vpc_route_table_info:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        region: "us-east-1"
+        filters:
+          vpc-id: "{{ vpc.vpc.id }}"
+          association.main: "true"  # must be string "true" (confusing)
+      register: "main_rt"
+
+    - name: "Update the main route table with VGW BGP route propagation"
+      community.aws.ec2_vpc_route_table:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        vpc_id: "{{ vpc.vpc.id }}"
+        region: "us-east-1"
+        lookup: "id"
+        route_table_id: "{{ main_rt.route_tables[0].id }}"
+        propagating_vgw_ids: ["{{ vgw.vgw.id }}"]
+        tags:
+          Name: "RT_Globo_Main"
+
+    - name: "Create IPsec VPN connection from VGW to CGW (slow)"
       community.aws.ec2_vpc_vpn:
         aws_access_key: "{{ aws_access_key }}"
         aws_secret_key: "{{ aws_secret_key }}"
@@ -79,24 +128,14 @@
             TunnelInsideCidr: "169.254.{{ ipsec.tunnel_ids[0] }}.1/30"
           - PreSharedKey: "{{ ipsec.psk }}"
             TunnelInsideCidr: "169.254.{{ ipsec.tunnel_ids[1] }}.1/30"
-        delay: 1
-        wait_timeout: 1  # fail fast since we can't specify state "pending"
         tags:
           Name: "VPN_Globo_R1"
-      ignore_errors: true
-
-    - name: "Get information from VPN connection just created"
-      community.aws.ec2_vpc_vpn_info:
-        aws_access_key: "{{ aws_access_key }}"
-        aws_secret_key: "{{ aws_secret_key }}"
-        filters:
-          "tag:Name": "VPN_Globo_R1"
       register: "vpn"
 
     - name: "Extract the public IP addresses hosted by the VGW"
       ansible.builtin.set_fact:
         aws_public_ips: >-
-          {{ vpn.vpn_connections[0].vgw_telemetry |
+          {{ vpn.vgw_telemetry |
           map(attribute='outside_ip_address') | list }}
 
     - name: "Display AWS VGW public IP addresses"
@@ -105,12 +144,12 @@
       delegate_to: "localhost"
 
 
-- name: "Built Globomantics IPsec VPN to AWS"
+- name: "Connect Globomantics IPsec VPN (CGW) to AWS (VGW)"
   hosts: "R1"
   vars_files:
     - "vault.yml"
   tasks:
-    - name: "Configure IPsec VPNs from edge router to AWS VGW"
+    - name: "Configure IPsec tunnels from edge router to AWS VGW"
       ansible.netcommon.cli_config:
         config: "{{ lookup('template', 'templates/ios_aws_ipsec.j2') }}"
       register: "config_updates"

@@ -18,7 +18,6 @@ crypto ipsec profile IPSEC_PROFILE
  set ikev2-profile IKEV2_PROFILE
 {% set aws_public_ips = hostvars.localhost.aws_public_ips %}
 {% for tunnel_id, aws_public_ip in ipsec.tunnel_ids | zip(aws_public_ips) %}
-{% set awsvpn_ipv4 = '169.254.' ~ tunnel_id ~ '.1' %}
 {% set tunnel_ipv4 = '169.254.' ~ tunnel_id ~ '.2' %}
 interface Tunnel{{ tunnel_id }}
  ip address {{ tunnel_ipv4 }} 255.255.255.252
@@ -26,7 +25,13 @@ interface Tunnel{{ tunnel_id }}
  tunnel source {{ ipsec_src_intf }}
  tunnel destination {{ aws_public_ip }}
  tunnel protection ipsec profile IPSEC_PROFILE
+{% endfor %}
+ip route 192.168.0.0 255.255.0.0 Null0 name BGP_AGGREGATE
 router bgp {{ ipsec.bgp.globo_asn }}
- neighbor {{ awsvpn_ipv4 }} remote {{ ipsec.bgp.aws_asn }}
+ bgp update-delay 5
+ network 192.168.0.0 mask 255.255.0.0
+{% for tunnel_id in ipsec.tunnel_ids %}
+{% set awsvpn_ipv4 = '169.254.' ~ tunnel_id ~ '.1' %}
+ neighbor {{ awsvpn_ipv4 }} remote-as {{ ipsec.bgp.aws_asn }}
  neighbor {{ awsvpn_ipv4 }} description Tunnel{{ tunnel_id }}
 {% endfor %}
