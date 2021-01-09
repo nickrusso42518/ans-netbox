@@ -1,0 +1,28 @@
+{
+  "changed": false,
+  "compliance_report": {
+    "complies": true,
+    "get_interfaces_ip": {
+      "complies": true,
+      "extra": [],
+      "missing": [],
+      "present": {
+        "GigabitEthernet1": {
+          "complies": true,
+          "nested": true
+        },
+        "Loopback0": {
+          "complies": true,
+          "nested": true
+        },
+        "VirtualPortGroup0": {
+          "complies": true,
+          "nested": true
+        }
+      }
+    },
+    "skipped": []
+  },
+  "failed": false,
+  "failed_when_result": false
+}

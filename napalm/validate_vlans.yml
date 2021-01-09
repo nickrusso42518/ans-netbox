@@ -1,0 +1,22 @@
+---
+- name: "Validate VLANs with NAPALM"
+  # hosts: "all"
+  hosts: "ios_switches"
+  tasks:
+    # Normally fails if compliance fails. We only want failure if
+    # a report isn't generated (SSH failure, etc.)
+    - name: "Check VLANs on switches against state file"
+      napalm_validate:
+        validation_file: "{{ playbook_dir }}/state/{{ inventory_hostname }}_vlans.yml"
+      register: "vlan_report"
+      failed_when: "'compliance_report' not in vlan_report"
+
+    # Can avoid an intermediate "set_fact" task, or ugly line wrap,
+    # using task-level variables
+    - name: "Write VLAN compliance report. Complies? --> {{ complies }}"
+      ansible.builtin.copy:
+        content: "{{ vlan_report | to_nice_json(indent=2) }}"
+        dest: "{{ playbook_dir }}/vlan_compliance.json"
+      vars:
+        complies: "{{ vlan_report.compliance_report.complies }}"
+...

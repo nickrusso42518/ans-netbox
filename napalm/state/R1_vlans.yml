@@ -1,0 +1,15 @@
+- get_interfaces_ip:
+    GigabitEthernet1:
+      ipv4:
+        172.31.43.132:
+          prefix_length: 20
+    Loopback0:
+      ipv4:
+        192.168.1.1:
+          prefix_length: 32
+        192.168.2.2:
+          prefix_length: 32
+    VirtualPortGroup0:
+      ipv4:
+        192.168.35.101:
+          prefix_length: 24
