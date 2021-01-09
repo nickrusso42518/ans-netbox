@@ -1,7 +1,6 @@
 ---
 - name: "Configure PAN NGFW running in AWS"
   hosts: "pan_aws"
-  connection: "ansible.builtin.local"
   vars_files:
     - "vault.yml"
   tasks:
@@ -18,7 +17,7 @@
     - name: "Update PAN NGFW admin password"
       paloaltonetworks.panos.panos_admpwd:
         ip_address: "{{ ansible_host }}"
-        key_filename: "/home/centos/personalprivkey.pem"  # FQFN needed
+        key_filename: "/home/centos/globokey.pem"  # FQFN needed
         username: "{{ pan_creds.username }}"
         newpassword: "{{ pan_creds.password }}"
       register: "admin_pass"

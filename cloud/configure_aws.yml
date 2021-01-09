@@ -1,7 +1,6 @@
 ---
 - name: "Build AWS network infrastructure and deploy EC2 instances"
   hosts: "localhost"
-  connection: "ansible.builtin.local"
   vars_files:
     - "vault.yml"
   tasks:
@@ -198,7 +197,7 @@
             delete_on_termination: true
         wait: true
         wait_timeout: 120
-        key_name: "EC2-key-pair"  # already exists
+        key_name: "globokey"  # already exists
       register: "ec2"
 
     - name: "Disable source/dest check on non-mgmt ENIs (enables routing)"
