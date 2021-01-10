@@ -1,7 +1,6 @@
 ---
 - name: "Get VLANs with NAPALM"
-  # hosts: "all"
-  hosts: "nxos_switches"
+  hosts: "all"
   tasks:
     - name: "Ensure state/ directory exists"
       ansible.builtin.file:

@@ -1,3 +1,4 @@
 #!/bin/bash
-# Print the value of ANSIBLE_VPF without a newline
-echo -n $ANSIBLE_VPF
+# Print the value of ANSIBLE_VP without a newline
+# Use 'export ANSIBLE_VP=<password>' to set 
+echo -n $ANSIBLE_VP

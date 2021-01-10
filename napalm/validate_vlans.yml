@@ -1,7 +1,6 @@
 ---
 - name: "Validate VLANs with NAPALM"
-  # hosts: "all"
-  hosts: "nxos_switches"
+  hosts: "all"
   tasks:
     - name: "Ensure compliance/ directory exists"
       ansible.builtin.file:
@@ -18,12 +17,12 @@
       register: "vlan_report"
       failed_when: "'compliance_report' not in vlan_report"
 
-    # Can avoid an intermediate "set_fact" task, or ugly line wrap,
-    # using task-level variables
-    - name: "Store VLAN compliance report. Complies? --> {{ complies }}"
+    - name: "Print device compliance status"
+      debug:
+        var: "vlan_report.compliance_report.complies"
+
+    - name: "Store VLAN detailed compliance report"
       ansible.builtin.copy:
         content: "{{ vlan_report | to_nice_json(indent=2) }}"
         dest: "./compliance/{{ inventory_hostname }}_vlans.json"
-      vars:
-        complies: "{{ vlan_report.compliance_report.complies }}"
 ...
