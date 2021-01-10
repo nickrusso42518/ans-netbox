@@ -1,22 +1,29 @@
 ---
 - name: "Validate VLANs with NAPALM"
   # hosts: "all"
-  hosts: "ios_switches"
+  hosts: "nxos_switches"
   tasks:
+    - name: "Ensure compliance/ directory exists"
+      ansible.builtin.file:
+        path: "./compliance"
+        state: "directory"
+      delegate_to: "localhost"
+      run_once: true
+
     # Normally fails if compliance fails. We only want failure if
     # a report isn't generated (SSH failure, etc.)
     - name: "Check VLANs on switches against state file"
       napalm_validate:
-        validation_file: "{{ playbook_dir }}/state/{{ inventory_hostname }}_vlans.yml"
+        validation_file: "./state/{{ inventory_hostname }}_vlans.yml"
       register: "vlan_report"
       failed_when: "'compliance_report' not in vlan_report"
 
     # Can avoid an intermediate "set_fact" task, or ugly line wrap,
     # using task-level variables
-    - name: "Write VLAN compliance report. Complies? --> {{ complies }}"
+    - name: "Store VLAN compliance report. Complies? --> {{ complies }}"
       ansible.builtin.copy:
         content: "{{ vlan_report | to_nice_json(indent=2) }}"
-        dest: "{{ playbook_dir }}/vlan_compliance.json"
+        dest: "./compliance/{{ inventory_hostname }}_vlans.json"
       vars:
         complies: "{{ vlan_report.compliance_report.complies }}"
 ...

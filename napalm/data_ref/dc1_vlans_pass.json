@@ -2,20 +2,36 @@
   "changed": false,
   "compliance_report": {
     "complies": true,
-    "get_interfaces_ip": {
+    "get_vlans": {
       "complies": true,
       "extra": [],
       "missing": [],
       "present": {
-        "GigabitEthernet1": {
+        "1": {
           "complies": true,
           "nested": true
         },
-        "Loopback0": {
+        "100": {
           "complies": true,
           "nested": true
         },
-        "VirtualPortGroup0": {
+        "101": {
+          "complies": true,
+          "nested": true
+        },
+        "102": {
+          "complies": true,
+          "nested": true
+        },
+        "103": {
+          "complies": true,
+          "nested": true
+        },
+        "104": {
+          "complies": true,
+          "nested": true
+        },
+        "105": {
           "complies": true,
           "nested": true
         }

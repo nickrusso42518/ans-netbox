@@ -1,0 +1,90 @@
+{
+  "changed": false,
+  "compliance_report": {
+    "complies": false,
+    "get_vlans": {
+      "complies": false,
+      "extra": [],
+      "missing": [],
+      "present": {
+        "1": {
+          "complies": true,
+          "nested": true
+        },
+        "100": {
+          "complies": false,
+          "diff": {
+            "complies": false,
+            "extra": [],
+            "missing": [],
+            "present": {
+              "interfaces": {
+                "complies": true,
+                "nested": true
+              },
+              "name": {
+                "actual_value": "mgmt",
+                "complies": false,
+                "expected_value": "mgmt123",
+                "nested": false
+              }
+            }
+          },
+          "nested": true
+        },
+        "101": {
+          "complies": true,
+          "nested": true
+        },
+        "102": {
+          "complies": true,
+          "nested": true
+        },
+        "103": {
+          "complies": true,
+          "nested": true
+        },
+        "104": {
+          "complies": true,
+          "nested": true
+        },
+        "105": {
+          "complies": false,
+          "diff": {
+            "complies": false,
+            "extra": [],
+            "missing": [],
+            "present": {
+              "interfaces": {
+                "complies": false,
+                "diff": {
+                  "complies": false,
+                  "extra": [
+                    "Ethernet1/2"
+                  ],
+                  "missing": [
+                    "Ethernet1/3"
+                  ],
+                  "present": [
+                    "Port-channel11",
+                    "Ethernet1/1"
+                  ]
+                },
+                "nested": true
+              },
+              "name": {
+                "complies": true,
+                "nested": false
+              }
+            }
+          },
+          "nested": true
+        }
+      }
+    },
+    "skipped": []
+  },
+  "failed": false,
+  "failed_when_result": false,
+  "msg": "Device does not comply with policy"
+}

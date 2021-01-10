@@ -1,7 +1,7 @@
 ---
 - name: "Get VLANs with NAPALM"
   # hosts: "all"
-  hosts: "ios_switches"
+  hosts: "nxos_switches"
   tasks:
     - name: "Ensure state/ directory exists"
       ansible.builtin.file:
@@ -12,18 +12,17 @@
 
     # NAPALM documentation with "Getters Support Matrix"
     # https://napalm.readthedocs.io/en/latest/support
-    - name: "Collect VLANs from router"
+    - name: "Collect VLANs from switches"
       napalm_get_facts:
-        filter: "interfaces_ip"
-      register: "vlans_raw"
+        filter: "vlans"
+      register: "raw_vlans"
 
-    - name: "Restructure VLANs into proper validation file format"
+    - name: "Restructure raw VLANs. Strict mode? --> {{ strict_mode }}"
       ansible.builtin.set_fact:
-        vlans:
-          - get_interfaces_ip: "{{ vlans_raw.ansible_facts.napalm_interfaces_ip }}"
+        reformed_vlans: "{{ raw_vlans | reform_vlans(strict_mode=True) }}"
 
     - name: "Generate validation file based on current state"
       ansible.builtin.copy:
-        content: "{{ vlans | to_nice_yaml(indent=2) }}"
+        content: "{{ reformed_vlans | to_nice_yaml(indent=2) }}"
         dest: "{{ playbook_dir }}/state/{{ inventory_hostname }}_vlans.yml"
 ...
