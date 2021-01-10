@@ -1,11 +1,13 @@
 - get_vlans:
     '1':
       interfaces:
+        _mode: strict
         list:
         - ''
       name: default
     '100':
       interfaces:
+        _mode: strict
         list:
         - Port-channel11
         - Ethernet1/1
@@ -13,6 +15,7 @@
       name: mgmt
     '101':
       interfaces:
+        _mode: strict
         list:
         - Port-channel11
         - Ethernet1/1
@@ -20,6 +23,7 @@
       name: prod
     '102':
       interfaces:
+        _mode: strict
         list:
         - Port-channel11
         - Ethernet1/1
@@ -27,6 +31,7 @@
       name: dev
     '103':
       interfaces:
+        _mode: strict
         list:
         - Port-channel11
         - Ethernet1/1
@@ -34,6 +39,7 @@
       name: test
     '104':
       interfaces:
+        _mode: strict
         list:
         - Port-channel11
         - Ethernet1/1
@@ -41,6 +47,7 @@
       name: security
     '105':
       interfaces:
+        _mode: strict
         list:
         - Port-channel11
         - Ethernet1/1

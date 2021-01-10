@@ -19,7 +19,7 @@
 
     - name: "Restructure raw VLANs. Strict mode? --> {{ strict_mode }}"
       ansible.builtin.set_fact:
-        reformed_vlans: "{{ raw_vlans | reform_vlans(strict_mode=True) }}"
+        reformed_vlans: "{{ raw_vlans | reform_vlans(strict_mode=strict_mode) }}"
 
     - name: "Generate validation file based on current state"
       ansible.builtin.copy:
