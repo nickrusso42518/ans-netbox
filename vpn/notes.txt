@@ -1,6 +1,0 @@
-telnet 80
-...
-GET / HTTP/1.1
-Host: 10.0.2.77
-
-

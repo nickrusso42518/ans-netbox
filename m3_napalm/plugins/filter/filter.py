@@ -5,7 +5,6 @@ Author: Nick Russo
 File contains custom filters for use in Ansible playbooks.
 """
 
-
 class FilterModule:
     """
     Defines a filter module object.
@@ -17,9 +16,7 @@ class FilterModule:
         Return a list of hashes where the key is the filter
         name exposed to playbooks and the value is the function.
         """
-        return {
-            "reform_vlans": FilterModule.reform_vlans,
-        }
+        return {"reform_vlans": FilterModule.reform_vlans}
 
     @staticmethod
     def reform_vlans(raw_vlans, strict_mode=False):
@@ -39,9 +36,7 @@ class FilterModule:
             new_vlans.update({vlan_id: vlan_attrs})
 
             # Overwrite "interfaces" key with new structure
-            new_vlans[vlan_id]["interfaces"] = {
-                "list": vlan_attrs["interfaces"]
-            }
+            new_vlans[vlan_id]["interfaces"] = {"list": vlan_attrs["interfaces"]}
 
             # Optionally add "_mode" key if strict mode is enabled
             if strict_mode:

@@ -1,9 +1,9 @@
 ---
-netbox_url: "http://netbox.njrusmc.net:8000"
-# netbox_token: "0123456789abcdef0123456789abcdef01234567"
+netbox_url: "http://nb1:8000"
 
 # In-line encrypted variable for secret token
 # ansible-vault encrypt_string <token_string> --name netbox_token
+# netbox_token: "0123456789abcdef0123456789abcdef01234567"
 netbox_token: !vault |
           $ANSIBLE_VAULT;1.1;AES256
           38363231643733363535313732643031303933366436356461303965366534386435386261346437
