@@ -1,3 +1,5 @@
 ansible-base==2.10.3
 yamllint
 napalm-ansible
+netmiko
+pynxos
