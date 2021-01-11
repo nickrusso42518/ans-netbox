@@ -45,7 +45,7 @@
     netbox_token: "{{ netbox_token }}"
     data:
       circuit: "XYZ987"
-      port_speed: 1000000  # measured in kbps; line rate
+      port_speed: 1000000  # measured in kbps; 1 Gbps line rate
       term_side: "Z"  # A: provider / Z: customer
       site: "{{ location.hq }}"
 
@@ -62,5 +62,5 @@
         name: "{{ interfaces.wan }}"
       termination_b_type: "circuits.circuittermination"
       termination_b:
-        name: "XYZ987"
+        circuit: "XYZ987"
 ...
