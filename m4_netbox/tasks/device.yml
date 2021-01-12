@@ -23,7 +23,6 @@
       name: "{{ item }}"
   loop: ["Cisco", "Arista"]
 
-# Useful tip: use the "part_number" to store the ansible_network_os
 - name: "Create device types"
   netbox.netbox.netbox_device_type:
     netbox_url: "{{ netbox_url }}"
@@ -37,19 +36,15 @@
   loop:
     - manufacturer: "Cisco"
       slug: "ISR-4451"
-      part_number: "ios"
       u_height: 2
     - manufacturer: "Cisco"
       slug: "C9300-24T"
-      part_number: "ios"
       u_height: 1
     - manufacturer: "Cisco"
       slug: "N9K-9372TX"
-      part_number: "nxos"
       u_height: 1
     - manufacturer: "Arista"
       slug: "DCS-7050QX-32S"
-      part_number: "eos"
       u_height: 1
   loop_control:
     label: "{{ item.manufacturer }} {{ item.slug }}"
@@ -69,14 +64,33 @@
   loop_control:
     label: "{{ item.name }}"
 
+- name: "Create platforms (network operating systems)"
+  netbox.netbox.netbox_platform:
+    netbox_url: "{{ netbox_url }}"
+    netbox_token: "{{ netbox_token }}"
+    data:
+      name: "{{ item.name }}"
+      manufacturer: "{{ item.manufacturer }}"
+  loop:
+    - name: "ios"
+      manufacturer: "Cisco"
+    - name: "nxos"
+      manufacturer: "Cisco"
+    - name: "eos"
+      manufacturer: "Arista"
+  loop_control:
+    label: "{{ item.manufacturer }} {{ item.name }}"
+
 - name: "Create devices"
   netbox.netbox.netbox_device:
     netbox_url: "{{ netbox_url }}"
     netbox_token: "{{ netbox_token }}"
     data:
       name: "{{ item.name }}"
+      status: "active"
       device_type: "{{ item.device_type }}"
       device_role: "{{ item.device_role }}"
+      platform: "{{ item.platform }}"
       rack: "{{ item.rack }}"
       position: "{{ item.position }}"
       face: "front"
@@ -85,21 +99,25 @@
     - name: "R1"
       device_type: "ISR-4451"
       device_role: "Router"
+      platform: "ios"
       rack: "Row1RackA"
       position: 1
     - name: "S2"
       device_type: "C9300-24T"
       device_role: "Switch"
+      platform: "ios"
       rack: "Row1RackA"
       position: 5
     - name: "S3"
       device_type: "N9K-9372TX"
       device_role: "Switch"
+      platform: "nxos"
       rack: "Row1RackB"
       position: 1
     - name: "S4"
       device_type: "DCS-7050QX-32S"
       device_role: "Switch"
+      platform: "eos"
       rack: "Row1RackB"
       position: 3
   loop_control:

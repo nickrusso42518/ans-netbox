@@ -5,7 +5,8 @@
 
     # REST API documentation (it's very good):
     # http://netbox1:8000/api/docs/
-    - include_tasks: "tasks/{{ taskname }}.yml"
+    - name: "Iteratively include all task lists"
+      include_tasks: "tasks/{{ taskname }}.yml"
       loop:
         - "org"
         - "device"

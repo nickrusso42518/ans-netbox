@@ -67,7 +67,8 @@
       primary_ip4: "{{ vlan_list[0].prefix | ipaddr('1') }}"
 
 # Perform similar steps on the switches with nested loop
-- include_tasks: "tasks/switch_intf.yml"
+- name: "Create interfaces and IP addresses for switches"
+  include_tasks: "tasks/switch_intf.yml"
   loop: [2, 3, 4]
   loop_control:
     loop_var: "swid"

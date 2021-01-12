@@ -18,11 +18,12 @@ config_context: false
 group_by:
   - "device_roles"
 
-# If primary_ip4/6 is set, ansible_host will mirror it
+# Only return devices with management IPs (ignore passive devices)
+# The plug will also store this as "ansible_host"
 device_query_filters:
   - has_primary_ip: "true"
 
 # Additionally, have the plugin include the network OS
 compose:
-  ansible_network_os: "device_type"
+  ansible_network_os: "platform.slug"
 ...
