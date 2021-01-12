@@ -2,6 +2,4 @@
 collections:
   - "ansible.netcommon"
   - "netbox.netbox"
-  # - "cisco.ios"
-  # - "cisco.nxos"
 ...

@@ -1,19 +1,19 @@
 ---
-- name: "Create Americas region"
+- name: "Create region"
   netbox.netbox.netbox_region:
     netbox_url: "{{ netbox_url }}"
     netbox_token: "{{ netbox_token }}"
     data:
-      name: "Americas"
+      name: "{{ location.region }}"
 
-- name: "Create Americas HQ site"
+- name: "Create HQ site"
   netbox.netbox.netbox_site:
     netbox_url: "{{ netbox_url }}"
     netbox_token: "{{ netbox_token }}"
     data:
-      name: "Americas HQ"
+      name: "{{ location.hq }}"
       status: "active"
-      region: "Americas"
+      region: "{{ location.region }}"
       asn: 65001
       time_zone: "America/New York"
       physical_address: "123 Main Street"

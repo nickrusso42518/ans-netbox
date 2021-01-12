@@ -1,15 +1,14 @@
 ---
-- name: "Create router WAN interface"
+- name: "Create R1 WAN interface"
   netbox.netbox.netbox_device_interface:
     netbox_url: "{{ netbox_url }}"
     netbox_token: "{{ netbox_token }}"
     data:
-      device: "Edge Router"
-      name: "Serial0/0"
-      type: "t3"  # aka DS3
-      mtu: 1500
+      device: "R1"
+      description: "DHCP client"
+      name: "{{ interfaces.wan }}"
+      type: "1000base-x-sfp"  # 1 Gbps Ethernet over fiber
       enabled: true
-      mgmt_only: false
 
 - name: "Create Verizon ISP"
   netbox.netbox.netbox_provider:
@@ -26,7 +25,7 @@
     netbox_url: "{{ netbox_url }}"
     netbox_token: "{{ netbox_token }}"
     data:
-      name: "DS3"
+      name: "Fios"
 
 - name: "Create Verizon uplink circuit"
   netbox.netbox.netbox_circuit:
@@ -35,10 +34,10 @@
     data:
       cid: "XYZ987"
       provider: "Verizon"
-      circuit_type: "DS3"
+      circuit_type: "Fios"
       status: "active"
       install_date: "2021-01-04"
-      commit_rate: 44736
+      commit_rate: 150000  # measured in kbps; 150 Mbps service
 
 - name: "Create circuit termination (Z)"
   netbox.netbox.netbox_circuit_termination:
@@ -46,19 +45,19 @@
     netbox_token: "{{ netbox_token }}"
     data:
       circuit: "XYZ987"
-      port_speed: 44736
+      port_speed: 1000000  # measured in kbps; line rate
       term_side: "Z"  # A: provider / Z: customer
-      site: "Americas HQ"
+      site: "{{ location.hq }}"
 
-- name: "Create cable from router WAN port to circuit termination"
+- name: "Create cable from R1 WAN interface to circuit termination"
   netbox.netbox.netbox_cable:
     netbox_url: "{{ netbox_url }}"
     netbox_token: "{{ netbox_token }}"
     data:
       termination_a_type: "dcim.interface"
       termination_a:
-        device: "Edge Router"
-        name: "Serial0/0"
+        device: "R1"
+        name: "{{ interfaces.wan }}"
       termination_b_type: "circuits.circuittermination"
       termination_b:
         name: "XYZ987"

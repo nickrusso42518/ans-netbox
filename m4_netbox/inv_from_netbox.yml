@@ -1,15 +1,18 @@
 ---
 - name: "Test dynamic inventory"
-  hosts: "device_roles_network"
-  connection: "network_cli"
+  hosts: "device_roles_switch"
+  connection: "ansible.netcommon.network_cli"
   tasks:
     # https://blog.networktocode.com/post/Ansible-Dynamic-Inventory-using-Plugins/
     - name: "Perform local verification/troubleshooting"
       block:
-        - name: "Reveal discovered ansible_host values"
+        - name: "Reveal discovered host and network_os values"
           debug:
-            var: "ansible_host"
+            msg: "{{ ansible_host }} / {{ ansible_network_os }}"
 
         - name: "Attempt to ping ansible_host"
           command: "ping -c 1 -w 1 {{ ansible_host }}"
+          when: false
+
+        # - debug: var=hostvars
       delegate_to: "localhost"

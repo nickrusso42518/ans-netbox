@@ -5,7 +5,7 @@
     netbox_token: "{{ netbox_token }}"
     data:
       name: "{{ item }}"
-      site: "Americas HQ"
+      site: "{{ location.hq }}"
       status: "active"
       type: "4-post cabinet"
       width: 19
@@ -21,10 +21,9 @@
     netbox_token: "{{ netbox_token }}"
     data:
       name: "{{ item }}"
-  loop:
-    - "Cisco"
-    - "Dell"
+  loop: ["Cisco", "Arista"]
 
+# Useful tip: use the "part_number" to store the ansible_network_os
 - name: "Create device types"
   netbox.netbox.netbox_device_type:
     netbox_url: "{{ netbox_url }}"
@@ -37,13 +36,20 @@
       is_full_depth: true
   loop:
     - manufacturer: "Cisco"
-      slug: "ISR4451"
+      slug: "ISR-4451"
+      part_number: "ios"
       u_height: 2
     - manufacturer: "Cisco"
-      slug: "N9K9372TX"
+      slug: "C9300-24T"
+      part_number: "ios"
       u_height: 1
-    - manufacturer: "Dell"
-      slug: "R420XR"
+    - manufacturer: "Cisco"
+      slug: "N9K-9372TX"
+      part_number: "nxos"
+      u_height: 1
+    - manufacturer: "Arista"
+      slug: "DCS-7050QX-32S"
+      part_number: "eos"
       u_height: 1
   loop_control:
     label: "{{ item.manufacturer }} {{ item.slug }}"
@@ -56,10 +62,10 @@
       name: "{{ item.name }}"
       color: "{{ item.color }}"
   loop:
-    - name: "Network"
-      color: "00FF00"  # green
-    - name: "Compute"
+    - name: "Router"
       color: "FF0000"  # red
+    - name: "Switch"
+      color: "0000FF"  # blue
   loop_control:
     label: "{{ item.name }}"
 
@@ -74,32 +80,28 @@
       rack: "{{ item.rack }}"
       position: "{{ item.position }}"
       face: "front"
-      site: "Americas HQ"
+      site: "{{ location.hq }}"
   loop:
-    - name: "Edge Router"
-      device_type: "ISR4451"
-      device_role: "Network"
-      serial: "111"
+    - name: "R1"
+      device_type: "ISR-4451"
+      device_role: "Router"
       rack: "Row1RackA"
       position: 1
-    - name: "Access Switch"
-      device_type: "N9K9372TX"
-      device_role: "Network"
-      serial: "222"
+    - name: "S2"
+      device_type: "C9300-24T"
+      device_role: "Switch"
       rack: "Row1RackA"
-      position: 9
-    - name: "Server1"
-      device_type: "R420XR"
-      device_role: "Compute"
-      serial: "333"
+      position: 5
+    - name: "S3"
+      device_type: "N9K-9372TX"
+      device_role: "Switch"
       rack: "Row1RackB"
       position: 1
-    - name: "Server2"
-      device_type: "R420XR"
-      device_role: "Compute"
-      serial: "444"
+    - name: "S4"
+      device_type: "DCS-7050QX-32S"
+      device_role: "Switch"
       rack: "Row1RackB"
-      position: 2
+      position: 3
   loop_control:
     label: "{{ item.name }} - {{ item.device_type }}"
 ...

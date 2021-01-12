@@ -1,5 +1,5 @@
 ---
-netbox_url: "http://nb1:8000"
+netbox_url: "http://netbox1:8000"
 
 # In-line encrypted variable for secret token
 # ansible-vault encrypt_string <token_string> --name netbox_token
@@ -12,4 +12,25 @@ netbox_token: !vault |
           6365396135353065310a346232643664336434323861383365643563616463643834613861633965
           65633366313161353837353130646538323430316462616435646363323562306339393863666333
           6435653330333134656463646239316538313164313665623866
+
+# User data; kept sparse for simplicity
+location:
+  region: "Americas"
+  hq: "Globo HQ"
+interfaces:
+  lan: "Ethernet0/0"
+  wan: "Ethernet0/1"
+vlan_list:
+  - name: "Management"
+    prefix: "192.168.10.0/24"
+    vid: 10
+  - name: "Engineering"
+    prefix: "192.168.11.0/24"
+    vid: 11
+  - name: "Sales"
+    prefix: "192.168.12.0/24"
+    vid: 12
+  - name: "Finance"
+    prefix: "192.168.13.0/24"
+    vid: 13
 ...

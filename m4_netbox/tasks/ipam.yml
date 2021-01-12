@@ -1,68 +1,74 @@
 ---
-- name: "Create router management interface"
-  netbox.netbox.netbox_device_interface:
-    netbox_url: "{{ netbox_url }}"
-    netbox_token: "{{ netbox_token }}"
-    data:
-      device: "Edge Router"
-      name: "GigabitEthernet0"
-      type: "1000base-t"
-      mtu: 1500
-      enabled: true
-      mgmt_only: true
-
-- name: "Create DC management VLAN"
+- name: "Create VLANs"
   netbox.netbox.netbox_vlan:
     netbox_url: "{{ netbox_url }}"
     netbox_token: "{{ netbox_token }}"
     data:
-      name: "Management"
-      vid: 4002
-      site: "Americas HQ"
+      name: "{{ item.name }}"
+      vid: "{{ item.vid }}"
+      site: "{{ location.hq }}"
       status: "active"
+  loop: "{{ vlan_list }}"
+  loop_control:
+    label: "{{ item.name }} / VID {{ item.vid }}"
 
-- name: "Create DC management VLAN"
-  netbox.netbox.netbox_vlan:
-    netbox_url: "{{ netbox_url }}"
-    netbox_token: "{{ netbox_token }}"
-    data:
-      name: "Management"
-      vid: 4002
-      site: "Americas HQ"
-      status: "active"
-
-- name: "Create DC management prefixes"
+- name: "Create IP prefixes and assign to VLANs"
   netbox.netbox.netbox_prefix:
     netbox_url: "{{ netbox_url }}"
     netbox_token: "{{ netbox_token }}"
     data:
-      prefix: "{{ item }}"
-      site: "Americas HQ"
-      vlan: "Management"
-  loop:
-    - "203.0.113.0/24"
-    - "2001:db8:203:113::/64"
+      prefix: "{{ item.prefix }}"
+      vlan: "{{ item.name }}"
+      site: "{{ location.hq }}"
+  loop: "{{ vlan_list }}"
+  loop_control:
+    label: "{{ item.prefix }} / VLAN {{ item.name }}"
 
-- name: "Create router management addresses"
+- name: "Create R1 802.1Q subinterfaces"
+  netbox.netbox.netbox_device_interface:
+    netbox_url: "{{ netbox_url }}"
+    netbox_token: "{{ netbox_token }}"
+    data:
+      device: "R1"
+      name: "{{ interfaces.lan }}.{{ item.vid }}"  # eg: Ethernet0/0.10
+      type: "1000base-t"
+      enabled: true
+      mode: "tagged"
+      tagged_vlans:
+        - name: "{{ item.name }}"
+          site: "{{ location.hq }}"
+  loop: "{{ vlan_list }}"
+  loop_control:
+    label: "{{ interfaces.lan }}.{{ item.vid }} / VLAN {{ item.name }}"
+
+- name: "Create IP addresses and assign to R1 interfaces"
   netbox.netbox.netbox_ip_address:
     netbox_url: "{{ netbox_url }}"
     netbox_token: "{{ netbox_token }}"
     data:
-      address: "{{ item }}"
+      address: "{{ ip }}"
       status: "active"
       assigned_object:
-        device: "Edge Router"
-        name: "GigabitEthernet0"
-  loop:
-    - "203.0.113.254/24"
-    - "2001:db8:203:113::254/64"
+        device: "R1"
+        name: "{{ intf }}"
+  vars:
+    ip: "{{ item.prefix | ipaddr('1') }}"
+    intf: "{{ interfaces.lan }}.{{ item.vid }}"
+  loop: "{{ vlan_list }}"
+  loop_control:
+    label: "{{ intf }} / IP {{ ip }}"
 
-- name: "Update router primary IP address(es)"
+- name: "Update R1 primary IP address for future management"
   netbox.netbox.netbox_device:
     netbox_url: "{{ netbox_url }}"
     netbox_token: "{{ netbox_token }}"
     data:
-      name: "Edge Router"
-      primary_ip4: "203.0.113.254/24"
-      # primary_ip6: "2001:db8:203:113::254/64"
+      name: "R1"
+      primary_ip4: "{{ vlan_list[0].prefix | ipaddr('1') }}"
+
+# Perform similar steps on the switches with nested loop
+- include_tasks: "tasks/switch_intf.yml"
+  loop: [2, 3, 4]
+  loop_control:
+    loop_var: "swid"
 ...
