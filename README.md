@@ -17,9 +17,10 @@ Collect VLANs (v1 and v2) and perform validation. Use
 file-level encryption with static file. Config mgmt too?
 
 # Module 4 - Referencing a Single source of truth with NetBox (30m)
-Create NetBox representation of network (subset). Use NetBox as SoT for some
-other tasks (info collection, etc) ... files in `netbox`. Use
+Create NetBox representation of network (subset). Use NetBox as SoT for NAPALM
+get VLANs (refactored). files contained in `netbox`. Use
 string-level encryption for secrets. Mention postman collection.
+Show 
 
 # Module 5 - Creating a Hybrid Cloud via IPsec VPN to Palo Alto Firewall in AWS (40m)
 Explain initial setup with keypair and IAM user premade. Discuss `cloud` files.

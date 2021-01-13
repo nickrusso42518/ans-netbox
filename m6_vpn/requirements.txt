@@ -1,5 +1,4 @@
 ansible-base==2.10.4
 yamllint
-requests
-pynetbox
-netaddr
+boto
+boto3
