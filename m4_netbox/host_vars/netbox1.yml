@@ -13,13 +13,13 @@ netbox_token: !vault |
           65633366313161353837353130646538323430316462616435646363323562306339393863666333
           6435653330333134656463646239316538313164313665623866
 
-# User data; kept sparse for simplicity
+# Configuration data; kept sparse for simplicity
 location:
   region: "Americas"
   hq: "Globo HQ"
 interfaces:
-  lan: "Ethernet0/0"
-  wan: "Ethernet0/1"
+  wan: "Ethernet0/0"
+  lan: "Ethernet0/1"
 vlan_list:
   - name: "Management"
     prefix: "192.168.10.0/24"
