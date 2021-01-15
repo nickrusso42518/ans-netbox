@@ -1,4 +1,5 @@
 **.pyc
+m2_cli/backup/*
 m3_napalm/state/*
 m3_napalm/compliance/*
 m4_netbox/state/*

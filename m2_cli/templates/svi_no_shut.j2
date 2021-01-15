@@ -1,0 +1,5 @@
+{# INDENTATION DOES NOT MATTER; NOT IDEMPOTENT #}
+{% for vid in vlans.values() %}
+interface Vlan{{ vid }}
+  no shutdown
+{% endfor %}

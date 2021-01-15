@@ -1,0 +1,33 @@
+---
+- name: "Configure VLANs and SVIs on switches"
+  hosts: "all"
+  collections:
+    - "ansible.netcommon"
+  tasks:
+    - name: "Store template path per device type"
+      set_fact:
+        template_path: "templates/{{ ansible_network_os }}_vlans.j2"
+
+    - name: "Apply config updates from jinja2 templates"
+      cli_config:
+        config: "{{ lookup('template', template_path) }}"
+        backup: true
+      register: "vlan_updates"
+      notify: "changes_occurred"
+
+    - name: "Unconditionally ensure SVIs are enabled"
+      cli_config:
+        config: "{{ lookup('template', 'templates/svi_no_shut.j2') }}"
+      changed_when: false
+
+  handlers:
+    - name: "Print config diff when updates occurred"
+      listen: "changes_occurred"
+      debug:
+        msg: "{{ vlan_updates['diff'].split('\n') }}"
+
+    - name: "Save configuration when updates occurred"
+      listen: "changes_occurred"
+      cli_command:
+        command: "copy running-config startup-config"
+...
