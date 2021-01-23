@@ -11,20 +11,28 @@
     - name: "Apply config updates from jinja2 templates"
       cli_config:
         config: "{{ lookup('template', template_path) }}"
-        backup: true
       register: "vlan_updates"
       notify: "changes_occurred"
 
-    - name: "Unconditionally ensure SVIs are enabled"
-      cli_config:
-        config: "{{ lookup('template', 'templates/svi_no_shut.j2') }}"
-      changed_when: false
-
   handlers:
-    - name: "Print config diff when updates occurred"
+    - name: "Print config changes when updates occurred"
+      listen: "changes_occurred"
+      debug:
+        msg: >- 
+          {{ vlan_updates['diff'] if 'diff' in vlan_updates
+          else vlan_updates['commands'] }}
+
+    - name: "Print on-box when updates occurred and feature is available"
       listen: "changes_occurred"
       debug:
         msg: "{{ vlan_updates['diff'].split('\n') }}"
+      when: "'diff' in vlan_updates"
+
+    - name: "Print commands sent to device when updates occurred"
+      listen: "changes_occurred"
+      debug:
+        var: "vlan_updates.commands"
+      when: "'commands' in vlan_updates"
 
     - name: "Save configuration when updates occurred"
       listen: "changes_occurred"
