@@ -1,0 +1,25 @@
+# Neatly print a public key for consumption on Cisco IOS
+$ fold -b -w 72 id_rsa.pub
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQDks8qDEIlG1wxyD3fYO7IiCyALfQX/KAJA
+VETK9LnssrXNZgsLUJ3CC8skUAefa1hVokVXO5kawkBUI5Q8dF/M23N3hxSzqNn0jUjR0qEm
+BwKJM/fwWYpxI7/KXeImP39ik7OD6zSMAX/PHgzRbd3mtmuyOgIrp7gInZFz3gTXmw==
+
+# Cisco IOS, uses folded lines, no "ssh-rsa" in front
+username admin_sshkey privilege 15 nopassword
+ip ssh pubkey-chain
+  username admin_sshkey
+   key-string
+    AAAAB3NzaC1yc2EAAAADAQABAAAAgQDks8qDEIlG1wxyD3fYO7IiCyALfQX/KAJA
+    VETK9LnssrXNZgsLUJ3CC8skUAefa1hVokVXO5kawkBUI5Q8dF/M23N3hxSzqNn0jUjR0qEm
+    BwKJM/fwWYpxI7/KXeImP39ik7OD6zSMAX/PHgzRbd3mtmuyOgIrp7gInZFz3gTXmw==
+   exit
+  exit
+ exit
+
+# Cisco NXOS, one long line, needs "ssh-rsa" in front
+username admin_sshkey role network-admin
+username admin_sshkey sshkey ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQDks8qDEIlG1wxyD3fYO7IiCyALfQX/KAJAVETK9LnssrXNZgsLUJ3CC8skUAefa1hVokVXO5kawkBUI5Q8dF/M23N3hxSzqNn0jUjR0qEmBwKJM/fwWYpxI7/KXeImP39ik7OD6zSMAX/PHgzRbd3mtmuyOgIrp7gInZFz3gTXmw==
+
+# Arista EOS, one long line, needs "ssh-rsa" in front
+username admin_sshkey privilege 15 nopassword
+username admin_sshkey ssh-key ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQDks8qDEIlG1wxyD3fYO7IiCyALfQX/KAJAVETK9LnssrXNZgsLUJ3CC8skUAefa1hVokVXO5kawkBUI5Q8dF/M23N3hxSzqNn0jUjR0qEmBwKJM/fwWYpxI7/KXeImP39ik7OD6zSMAX/PHgzRbd3mtmuyOgIrp7gInZFz3gTXmw==
