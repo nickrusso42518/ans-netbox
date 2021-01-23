@@ -8,27 +8,23 @@
       set_fact:
         template_path: "templates/{{ ansible_network_os }}_vlans.j2"
 
+    # Reduce forks if your system is CPU/memory constrained!
     - name: "Apply config updates from jinja2 templates"
       cli_config:
         config: "{{ lookup('template', template_path) }}"
       register: "vlan_updates"
       notify: "changes_occurred"
+      vars:
+        ansible_forks: 1  # default is 5
 
   handlers:
-    - name: "Print config changes when updates occurred"
-      listen: "changes_occurred"
-      debug:
-        msg: >- 
-          {{ vlan_updates['diff'] if 'diff' in vlan_updates
-          else vlan_updates['commands'] }}
-
-    - name: "Print on-box when updates occurred and feature is available"
+    - name: "Print on-box diff when updates occurred and feature is available"
       listen: "changes_occurred"
       debug:
         msg: "{{ vlan_updates['diff'].split('\n') }}"
       when: "'diff' in vlan_updates"
 
-    - name: "Print commands sent to device when updates occurred"
+    - name: "Print commands issued when updates occurred (no on-box diff)"
       listen: "changes_occurred"
       debug:
         var: "vlan_updates.commands"
