@@ -8,10 +8,6 @@
       "missing": [],
       "present": {
         "1": {
-          "complies": true,
-          "nested": true
-        },
-        "100": {
           "complies": false,
           "diff": {
             "complies": false,
@@ -19,36 +15,47 @@
             "missing": [],
             "present": {
               "interfaces": {
-                "complies": true,
+                "complies": false,
+                "diff": {
+                  "complies": false,
+                  "extra": [],
+                  "missing": [
+                    "Ethernet5"
+                  ],
+                  "present": [
+                    "Ethernet8",
+                    "Ethernet9",
+                    "Ethernet4",
+                    "Ethernet6",
+                    "Ethernet10",
+                    "Ethernet11",
+                    "Ethernet12",
+                    "Ethernet7"
+                  ]
+                },
                 "nested": true
               },
               "name": {
-                "actual_value": "mgmt",
-                "complies": false,
-                "expected_value": "mgmt123",
+                "complies": true,
                 "nested": false
               }
             }
           },
           "nested": true
         },
-        "101": {
+        "10": {
           "complies": true,
           "nested": true
         },
-        "102": {
+        "11": {
           "complies": true,
           "nested": true
         },
-        "103": {
+        "12": {
           "complies": true,
           "nested": true
         },
-        "104": {
-          "complies": true,
-          "nested": true
-        },
-        "105": {
+        "13": {
           "complies": false,
           "diff": {
             "complies": false,
@@ -60,14 +67,13 @@
                 "diff": {
                   "complies": false,
                   "extra": [
-                    "Ethernet1/2"
+                    "Ethernet5"
                   ],
-                  "missing": [
-                    "Ethernet1/3"
-                  ],
+                  "missing": [],
                   "present": [
-                    "Port-channel11",
-                    "Ethernet1/1"
+                    "Ethernet1",
+                    "Ethernet3",
+                    "Cpu"
                   ]
                 },
                 "nested": true
