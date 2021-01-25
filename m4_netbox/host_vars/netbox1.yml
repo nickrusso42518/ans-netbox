@@ -1,5 +1,5 @@
 ---
-netbox_url: "http://netbox1:8000"
+netbox_url: "http://netbox1:8000"  # http://18.215.232.167:8000
 
 # In-line encrypted variable for secret token
 # ansible-vault encrypt_string <token_string> --name netbox_token
@@ -33,4 +33,13 @@ vlan_list:
   - name: "Finance"
     prefix: "192.168.13.0/24"
     vid: 13
+ethernet_cables:
+  - a: {device: "R1", name: "{{ interfaces.lan }}"}  # can reference other vars
+    b: {device: "S2", name: "GigabitEthernet0/1"}
+  - a: {device: "S2", name: "GigabitEthernet0/2"}
+    b: {device: "S3", name: "Ethernet1/2"}
+  - a: {device: "S2", name: "GigabitEthernet0/3"}
+    b: {device: "S4", name: "Ethernet3"}
+  - a: {device: "S3", name: "Ethernet1/1"}
+    b: {device: "S4", name: "Ethernet1"}
 ...
