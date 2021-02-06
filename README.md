@@ -18,6 +18,7 @@ Demonstrate ssh pubkey, use "--limit" to demonstrate vault and pubkey.
 Collect VLANs (v1 and v2) and perform validation. Use
 file-level encryption with static file. Explain Python filters and
 review source code. Briefly review NX-API and EOS postman collections.
+Include file-level encryption with basic VPF.
 
 # Module 4 - Building and Referencing a Single Source of Truth (SSoT) with NetBox (40m)
 Create NetBox representation of network (subset). Use NetBox as SoT for NAPALM

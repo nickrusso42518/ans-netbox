@@ -1,5 +1,8 @@
 #!/bin/bash
 # Create route to Globomantics network via PAN FW inside interface
+# Assumes server has 2 interfaces:
+#  eth0: public mgmt with dynamic EIP (doesn't matter)
+#  eth1: Globo Servers subnet with IP 10.0.2.78
 ip route add 192.168.0.0/16 via 10.0.2.77 dev eth1
 
 # Install and start Apache web server
