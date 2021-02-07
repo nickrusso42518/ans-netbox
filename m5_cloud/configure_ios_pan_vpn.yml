@@ -7,7 +7,7 @@
 
     # Ansible netcommon collection documentation
     # https://github.com/ansible-collections/ansible.netcommon
-    - name: "Compute IPsec tunnel destination IP"
+    - name: "Compute IPsec tunnel destination IP to PAN_VM1"
       ansible.builtin.set_fact:
         tunnel_dest: "{{ hostvars.PAN_VM1.ipsec_endpoint }}"
       when:
@@ -21,7 +21,7 @@
       when: "tunnel_dest is not defined"
       delegate_to: "localhost"
 
-    - name: "Apply updates from jinja2 template to {{ tunnel_dest }}"
+    - name: "Build IPsec tunnel to {{ tunnel_dest }} using jinja2 template"
       ansible.netcommon.cli_config:
         config: "{{ lookup('template', 'templates/ios_pan_ipsec.j2') }}"
       register: "config_updates"

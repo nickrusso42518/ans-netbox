@@ -16,6 +16,8 @@ crypto ipsec transform-set IPSEC_XFORM esp-gcm 256
 crypto ipsec profile IPSEC_PROFILE
  set transform-set IPSEC_XFORM
  set ikev2-profile IKEV2_PROFILE
+{# UNCOMMENT LINE BELOW TO USE TEMPORARY PUBLIC IPS #}
+{# {% set aws_public_ips = ["192.0.2.111", "192.0.2.222"] %} #}
 {% set aws_public_ips = hostvars.localhost.aws_public_ips %}
 {% for tunnel_id, aws_public_ip in ipsec.tunnel_ids | zip(aws_public_ips) %}
 {% set tunnel_ipv4 = '169.254.' ~ tunnel_id ~ '.2' %}
