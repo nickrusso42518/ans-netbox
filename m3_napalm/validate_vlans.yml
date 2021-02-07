@@ -18,7 +18,7 @@
       failed_when: "'compliance_report' not in vlan_report"
 
     - name: "Print device compliance status"
-      debug:
+      ansible.builtin.debug:
         var: "vlan_report.compliance_report.complies"
 
     - name: "Store VLAN detailed compliance report"

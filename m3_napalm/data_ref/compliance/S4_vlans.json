@@ -18,15 +18,16 @@
                 "complies": false,
                 "diff": {
                   "complies": false,
-                  "extra": [],
-                  "missing": [
-                    "Ethernet5"
+                  "extra": [
+                    "Ethernet1"
                   ],
+                  "missing": [],
                   "present": [
                     "Ethernet8",
                     "Ethernet9",
                     "Ethernet4",
                     "Ethernet6",
+                    "Ethernet5",
                     "Ethernet10",
                     "Ethernet11",
                     "Ethernet12",
@@ -56,34 +57,7 @@
           "nested": true
         },
         "13": {
-          "complies": false,
-          "diff": {
-            "complies": false,
-            "extra": [],
-            "missing": [],
-            "present": {
-              "interfaces": {
-                "complies": false,
-                "diff": {
-                  "complies": false,
-                  "extra": [
-                    "Ethernet5"
-                  ],
-                  "missing": [],
-                  "present": [
-                    "Ethernet1",
-                    "Ethernet3",
-                    "Cpu"
-                  ]
-                },
-                "nested": true
-              },
-              "name": {
-                "complies": true,
-                "nested": false
-              }
-            }
-          },
+          "complies": true,
           "nested": true
         }
       }
