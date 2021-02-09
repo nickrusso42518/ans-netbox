@@ -1,9 +1,6 @@
 ---
-netbox_url: "http://netbox1:8000"  # http://18.215.232.167:8000
-
-# In-line encrypted variable for secret token
-# ansible-vault encrypt_string <token_string> --name netbox_token
-# netbox_token: "0123456789abcdef0123456789abcdef01234567"
+# Connectivity variables
+netbox_url: "http://netbox1:8000"
 netbox_token: !vault |
           $ANSIBLE_VAULT;1.1;AES256
           38363231643733363535313732643031303933366436356461303965366534386435386261346437
@@ -12,6 +9,7 @@ netbox_token: !vault |
           6365396135353065310a346232643664336434323861383365643563616463643834613861633965
           65633366313161353837353130646538323430316462616435646363323562306339393863666333
           6435653330333134656463646239316538313164313665623866
+# netbox_token: "0123456789abcdef0123456789abcdef01234567"
 
 # Configuration data; kept sparse for simplicity
 location:

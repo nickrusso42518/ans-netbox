@@ -11,9 +11,7 @@
       width: 19
       u_height: 42
       desc_units: true
-  loop:
-    - "Row1RackA"
-    - "Row1RackB"
+  loop: ["Row1RackA", "Row1RackB"]
 
 - name: "Create manufacturers"
   netbox.netbox.netbox_manufacturer:
