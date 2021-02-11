@@ -79,7 +79,7 @@
     netbox_token: "{{ netbox_token }}"
     data:
       device: "R1"
-      name: "{{ interfaces.lan }}.{{ item.vid }}"  # eg: Ethernet0/1.10
+      name: "{{ interfaces.lan }}.{{ item.vid }}"  # eg: GigabitEthernet1.10
       type: "1000base-t"
       enabled: true
       mode: "tagged"

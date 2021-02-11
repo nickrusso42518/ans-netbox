@@ -87,31 +87,31 @@
         ak_ike_gateway: "IKE_GW_GloboHQ"
         ak_ipsec_crypto_profile: "Suite-B-GCM-256"  # built-in
 
-    - name: "Configure static route to GloboHQ"
+    - name: "Configure static route to all Globo VLANs"
       paloaltonetworks.panos.panos_static_route:
         provider: "{{ pan_creds }}"
         name: "To_GloboHQ"
-        destination: "192.168.0.0/16"  # Globomantics aggregate
+        destination: "192.168.0.0/16"
         nexthop_type: "none"
         interface: "tunnel.{{ ipsec.tunnel_id }}"
 
-    - name: "Permit HTTP from GloboHQ to cloud servers"
+    - name: "Permit HTTP from Globo Mgmt VLAN to cloud servers"
       paloaltonetworks.panos.panos_security_rule:
         provider: "{{ pan_creds }}"
-        rule_name: "Eng_HTTP"
+        rule_name: "Mgmt_HTTP"
         source_zone: ["globo"]
-        source_ip: ["192.168.55.0/24"]  # Globomantics Engineering
+        source_ip: ["192.168.10.0/24"]
         destination_zone: ["servers"]
         service: ["service-http"]  # built-in service for TCP 80 and 8080
         location: "top"
         action: "allow"
 
-    - name: "Permit SSH from GloboHQ to cloud servers"
+    - name: "Permit SSH from Globo Mgmt VLAN to cloud servers"
       paloaltonetworks.panos.panos_security_rule:
         provider: "{{ pan_creds }}"
-        rule_name: "Eng_SSH"
+        rule_name: "Mgmt_SSH"
         source_zone: ["globo"]
-        source_ip: ["192.168.55.0/24"]  # Globomantics Engineering
+        source_ip: ["192.168.10.0/24"]
         destination_zone: ["servers"]
         application: ["ssh"]  # built-in application for TCP 22
         location: "after"

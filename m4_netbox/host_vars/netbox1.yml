@@ -16,8 +16,8 @@ location:
   region: "Americas"
   hq: "Globo HQ"
 interfaces:
-  wan: "Ethernet0/0"
-  lan: "Ethernet0/1"
+  lan: "GigabitEthernet1"  # TO S2
+  wan: "GigabitEthernet4"  # TO INTERNET
 vlan_list:
   - name: "Management"
     prefix: "192.168.10.0/24"
