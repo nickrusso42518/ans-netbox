@@ -1,7 +1,6 @@
 ---
 - name: "Test AWS connectivity"
   hosts: "localhost"
-  connection: "ansible.builtin.local"
   vars_files:
     - "vault.yml"
   tasks:
@@ -13,6 +12,6 @@
       register: "caller_info"
 
     - name: "Display caller information"
-      debug:
+      ansible.builtin.debug:
         var: "caller_info"
 ...

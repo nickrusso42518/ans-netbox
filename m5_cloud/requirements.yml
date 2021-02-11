@@ -1,8 +1,8 @@
 ---
 collections:
-  - "ansible.netcommon"
   - "amazon.aws"
   - "community.aws"
   - "paloaltonetworks.panos"
+  - "ansible.netcommon"
   - "cisco.ios"
 ...

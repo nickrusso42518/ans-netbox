@@ -1,7 +1,6 @@
 ---
 - name: "Teardown AWS network infrastructure and EC2 instances"
   hosts: "localhost"
-  connection: "ansible.builtin.local"
   vars_files:
     - "vault.yml"
   tasks:
