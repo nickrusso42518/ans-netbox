@@ -7,6 +7,8 @@
         file: "vault.yml"
       delegate_to: "localhost"
 
+    # R1#more http://ifconfig.me/ip
+    # Loading http://ifconfig.me/ip 54.162.84.189
     - name: "Get the edge router public IP address"
       ansible.netcommon.cli_command:
         command: "more http://ifconfig.me/ip"
@@ -50,15 +52,20 @@
           Name: "NET_Globo_Servers"
       register: "subnet"
 
-    - name: "Create Server security group"
+    - name: "Create Servers security group"
       amazon.aws.ec2_group:
         aws_access_key: "{{ aws_access_key }}"
         aws_secret_key: "{{ aws_secret_key }}"
-        name: "SG_Globo_Mgmt"
-        description: "Allow HTTP and ICMP ping only from GloboHQ"  # required!
+        name: "SG_Globo_Servers"
+        description: "Allow SSH/HTTP/ICMP ping only from GloboHQ"  # required!
         vpc_id: "{{ vpc.vpc.id }}"
         region: "us-east-1"
         rules:
+          - rule_desc: "SSH"
+            proto: "tcp"
+            from_port: 22
+            to_port: 22
+            cidr_ip: "192.168.0.0/16"
           - rule_desc: "HTTP"
             proto: "tcp"
             from_port: 80
@@ -140,7 +147,7 @@
 
     - name: "Display AWS VGW public IP addresses"
       ansible.builtin.debug:
-        msg: "Tu1: {{ aws_public_ips[0] }} / Tu2: {{ aws_public_ips[1] }}"
+        var: "aws_public_ips"
       delegate_to: "localhost"
 
 
