@@ -127,6 +127,7 @@
       community.aws.ec2_vpc_vpn:
         aws_access_key: "{{ aws_access_key }}"
         aws_secret_key: "{{ aws_secret_key }}"
+        region: "us-east-1"
         customer_gateway_id: >-
           {{ cgw.gateway.customer_gateway.customer_gateway_id }}
         vpn_gateway_id: "{{ vgw.vgw.id }}"
