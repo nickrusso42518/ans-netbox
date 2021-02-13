@@ -75,6 +75,7 @@
       amazon.aws.ec2_ami_info:
         aws_access_key: "{{ aws_access_key }}"
         aws_secret_key: "{{ aws_secret_key }}"
+        region: "us-east-1"
         image_id: "ami-04d797af2d3326de3"  # PA-VM 9.1.6
         # filters: name=PA-VM-AWS*
 
@@ -205,6 +206,7 @@
         aws_access_key: "{{ aws_access_key }}"
         aws_secret_key: "{{ aws_secret_key }}"
         eni_id: "{{ item }}"
+        region: "us-east-1"
         source_dest_check: false
       loop: "{{ enis[1:] }}"  # Slice captures all interfaces except the first
 

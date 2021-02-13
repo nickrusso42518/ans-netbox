@@ -115,7 +115,7 @@
         destination_zone: ["servers"]
         application: ["ssh"]  # built-in application for TCP 22
         location: "after"
-        existing_rule: "Eng_HTTP"
+        existing_rule: "Mgmt_HTTP"
         action: "allow"
 
     - name: "Commit changes"
