@@ -35,3 +35,17 @@ Provide SaaS overview and review updated (simplified diagram).
 Discuss `vpn` files and explain real-life customer use case.
 Use file-level encryption for secrets + shell script. Wrap up with high-level
 cost comparison between solutions.
+
+```
+Collection             Version
+---------------------- -------
+amazon.aws             1.4.0
+ansible.netcommon      1.5.0
+arista.eos             1.3.0
+cisco.ios              1.3.0
+cisco.nxos             1.4.0
+community.aws          1.3.0
+community.general      2.0.0
+netbox.netbox          2.0.0
+paloaltonetworks.panos 2.5.0
+```
