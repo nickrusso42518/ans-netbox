@@ -1,11 +1,8 @@
-# Delete VLAN 11 desc on S2
-interface Vlan11
- no description
+# Module 2 - Multi-vendor Automation and Security Techniques
+This module discusses VLAN configurtion management on Cisco IOS,
+Cisco NXOS, and Arista EOS devices.
 
-# Modify VLAN 12 IP on S3
-interface Vlan12
-  ip address 172.16.99.99/24
-
-# Delete VLAN 13 on S4
-no interface Vlan13
-no vlan 13
+Versions:
+  - Cisco IOS: 15.6
+  - Cisco NXOS: 7.0(3)
+  - Arista EOS: 4.25.1F
