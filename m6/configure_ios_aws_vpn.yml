@@ -8,7 +8,7 @@
       delegate_to: "localhost"
 
     # R1#more http://ifconfig.me/ip
-    # Loading http://ifconfig.me/ip 54.162.84.189
+    # Loading http://ifconfig.me/ip 100.16.207.84
     - name: "Get the edge router public IP address"
       ansible.netcommon.cli_command:
         command: "more http://ifconfig.me/ip"
@@ -99,6 +99,7 @@
         name: "VGW_Globo_R1"
         region: "us-east-1"
         vpc_id: "{{ vpc.vpc.id }}"
+        asn: "{{ ipsec.bgp.aws_asn }}"
       register: "vgw"
 
     - name: "Find main route table within VPC"
